@@ -1,0 +1,29 @@
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# Runtime configuration
+.env
+
+!.env.e
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+.cache/
+.tmp/
+
+# IDE and operating system
+.idea/
+.DS_Store
+Thumbs.db
+
+# Uploaded development assets
+uploads/
+
+# Prisma local databases
+*.db
+*.db-journal

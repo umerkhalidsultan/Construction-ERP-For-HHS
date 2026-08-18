@@ -1,0 +1,41 @@
+{
+  "name": "construction-erp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Enterprise Construction ERP",
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "engines": {
+    "node": ">=20 <25"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "shared"
+  ],
+  "scripts": {
+    "dev:api": "npm run start:dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "build:api": "npm run build --workspace=apps/api",
+    "build:web": "npm run build --workspace=apps/web",
+    "build": "npm run build:api && npm run build:web",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "db:generate": "prisma generate --schema=prisma/schema.prisma",
+    "db:validate": "prisma validate --schema=prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema=prisma/schema.prisma",
+    "db:migrate:deploy": "prisma migrate deploy --schema=prisma/schema.prisma",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio --schema=prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prisma": "^6.19.3",
+    "tsx": "^4.23.12"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3"
+  }
+}
