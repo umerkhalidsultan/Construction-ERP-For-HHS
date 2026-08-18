@@ -1,0 +1,1 @@
+-- Generated from the validated Prisma data model.

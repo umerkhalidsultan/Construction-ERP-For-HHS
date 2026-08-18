@@ -47,9 +47,52 @@ const permissionDefinitions = [
   ['Employee.Edit', 'Employee', 'Edit'],
   ['Employee.Delete', 'Employee', 'Delete'],
   ['Employee.Documents', 'Employee', 'Documents'],
+  ['Quality.View', 'Quality', 'View quality records'],
+  ['Quality.Create', 'Quality', 'Create quality records'],
+  ['Quality.Edit', 'Quality', 'Edit quality records'],
+  ['Quality.Delete', 'Quality', 'Archive quality records'],
+  ['Quality.Inspect', 'Quality', 'Perform inspections'],
+  ['Quality.Approve', 'Quality', 'Approve quality records'],
+  ['Quality.Reject', 'Quality', 'Reject quality records'],
+  ['Quality.Submit', 'Quality', 'Submit quality records'],
+  ['Quality.NCR.Create', 'Quality', 'Create NCRs'],
+  ['Quality.NCR.Edit', 'Quality', 'Edit NCRs'],
+  ['Quality.NCR.Assign', 'Quality', 'Assign NCRs'],
+  ['Quality.NCR.Close', 'Quality', 'Close NCRs'],
+  ['Quality.Test.Create', 'Quality', 'Create tests'],
+  ['Quality.Test.Approve', 'Quality', 'Approve or override tests'],
+  ['Quality.MaterialApprove', 'Quality', 'Approve materials'],
+  ['Quality.MethodStatementApprove', 'Quality', 'Approve method statements'],
+  ['Quality.Defect.Create', 'Quality', 'Create defects'],
+  ['Quality.Defect.Close', 'Quality', 'Close defects'],
+  ['Quality.PunchList.Create', 'Quality', 'Create punch items'],
+  ['Quality.PunchList.Close', 'Quality', 'Close punch items'],
+  ['Quality.Report', 'Quality', 'View quality reports'],
+  ['Quality.Export', 'Quality', 'Export quality records'],
+  ['Quality.ExternalReview', 'Quality', 'External quality review'],
   ['Employee.AssignProject', 'Employee', 'AssignProject'],
   ['Employee.Transfer', 'Employee', 'Transfer'],
   ['Employee.Export', 'Employee', 'Export'],
+  ['CRM.View', 'CRM', 'View'],
+  ['CRM.Lead.View', 'CRM.Lead', 'View'],
+  ['CRM.Lead.Create', 'CRM.Lead', 'Create'],
+  ['CRM.Lead.Edit', 'CRM.Lead', 'Edit'],
+  ['CRM.Lead.Delete', 'CRM.Lead', 'Delete'],
+  ['CRM.Lead.Assign', 'CRM.Lead', 'Assign'],
+  ['CRM.Lead.ChangeStatus', 'CRM.Lead', 'ChangeStatus'],
+  ['CRM.Lead.Export', 'CRM.Lead', 'Export'],
+  ['CRM.Company.View', 'CRM.Company', 'View'],
+  ['CRM.Company.Create', 'CRM.Company', 'Create'],
+  ['CRM.Company.Edit', 'CRM.Company', 'Edit'],
+  ['CRM.Company.Delete', 'CRM.Company', 'Delete'],
+  ['CRM.Company.Assign', 'CRM.Company', 'Assign'],
+  ['CRM.Company.Merge', 'CRM.Company', 'Merge'],
+  ['CRM.Contact.View', 'CRM.Contact', 'View'],
+  ['CRM.Contact.Create', 'CRM.Contact', 'Create'],
+  ['CRM.Contact.Edit', 'CRM.Contact', 'Edit'],
+  ['CRM.Contact.Delete', 'CRM.Contact', 'Delete'],
+  ['CRM.Contact.Assign', 'CRM.Contact', 'Assign'],
+  ['CRM.Contact.Merge', 'CRM.Contact', 'Merge'],
 ] as const;
 
 const rolePermissions: Record<string, string[]> = {
@@ -87,8 +130,21 @@ const rolePermissions: Record<string, string[]> = {
     'Progress.View',
     'Employee.View',
     'Employee.AssignProject',
+    'Quality.View',
+    'Quality.Create',
+    'Quality.Edit',
+    'Quality.Submit',
+    'Quality.Approve',
+    'Quality.NCR.Create',
+    'Quality.NCR.Edit',
+    'Quality.NCR.Assign',
+    'Quality.Report',
   ],
-  'Site Engineer': ['Company.View', 'Project.View', 'ProjectPlanning.View', 'Gantt.View', 'Baseline.View', 'Progress.View', 'Progress.Update'],
+  'Site Engineer': ['Company.View', 'Project.View', 'ProjectPlanning.View', 'Gantt.View', 'Baseline.View', 'Progress.View', 'Progress.Update', 'Quality.View', 'Quality.Create', 'Quality.Inspect', 'Quality.NCR.Create', 'Quality.Test.Create', 'Quality.Defect.Create', 'Quality.PunchList.Create'],
+  'QA/QC Manager': permissionDefinitions
+    .map(([code]) => code)
+    .filter((code) => code.startsWith('Quality.') || ['Company.View', 'Project.View', 'ProjectPlanning.View'].includes(code)),
+  'QA/QC Engineer': ['Company.View', 'Project.View', 'ProjectPlanning.View', 'Quality.View', 'Quality.Create', 'Quality.Edit', 'Quality.Inspect', 'Quality.Submit', 'Quality.NCR.Create', 'Quality.NCR.Edit', 'Quality.Test.Create', 'Quality.Defect.Create', 'Quality.PunchList.Create', 'Quality.Report'],
   'Procurement Officer': ['Company.View', 'Project.View'],
   'Store Keeper': ['Company.View'],
   HR: [
@@ -109,7 +165,60 @@ const rolePermissions: Record<string, string[]> = {
   Accountant: ['Company.View', 'CostCenter.Manage', 'Project.View'],
   Employee: ['Company.View'],
   Viewer: ['Company.View', 'Project.View'],
+  'Business Development Manager': [
+    'Company.View', 'CRM.View', 'CRM.Lead.View', 'CRM.Lead.Create',
+    'CRM.Lead.Edit', 'CRM.Lead.Delete', 'CRM.Lead.Assign',
+    'CRM.Lead.ChangeStatus', 'CRM.Lead.Export',
+    'CRM.Company.View', 'CRM.Company.Create', 'CRM.Company.Edit',
+    'CRM.Company.Delete', 'CRM.Company.Assign', 'CRM.Company.Merge',
+    'CRM.Contact.View', 'CRM.Contact.Create', 'CRM.Contact.Edit',
+    'CRM.Contact.Delete', 'CRM.Contact.Assign', 'CRM.Contact.Merge',
+  ],
+  'Business Development Executive': [
+    'Company.View', 'CRM.View', 'CRM.Lead.View', 'CRM.Lead.Create',
+    'CRM.Lead.Edit', 'CRM.Lead.ChangeStatus',
+    'CRM.Company.View', 'CRM.Company.Create', 'CRM.Company.Edit',
+    'CRM.Contact.View', 'CRM.Contact.Create', 'CRM.Contact.Edit',
+  ],
 };
+
+const systemLeadTypes = [
+  ['RESIDENTIAL', 'Residential'], ['COMMERCIAL', 'Commercial'],
+  ['INDUSTRIAL', 'Industrial'], ['RENOVATION', 'Renovation'],
+  ['INFRASTRUCTURE', 'Infrastructure'], ['INTERIOR', 'Interior'],
+  ['SOLAR', 'Solar'], ['MAINTENANCE', 'Maintenance'], ['OTHER', 'Other'],
+] as const;
+
+const systemLeadSources = [
+  ['WEBSITE', 'Website'], ['WHATSAPP', 'WhatsApp'], ['PHONE_CALL', 'Phone Call'],
+  ['EMAIL', 'Email'], ['REFERRAL', 'Referral'], ['EXISTING_CLIENT', 'Existing Client'],
+  ['SOCIAL_MEDIA', 'Social Media'], ['ADVERTISEMENT', 'Advertisement'],
+  ['PROPERTY_DEVELOPER', 'Property Developer'], ['CONSULTANT', 'Consultant'],
+  ['ARCHITECT', 'Architect'], ['CONTRACTOR', 'Contractor'],
+  ['TENDER_PORTAL', 'Tender Portal'], ['WALK_IN', 'Walk-in'], ['OTHER', 'Other'],
+] as const;
+
+const systemCrmCompanyTypes = [
+  ['CLIENT', 'Client'], ['POTENTIAL_CLIENT', 'Potential Client'],
+  ['DEVELOPER', 'Developer'], ['PROPERTY_OWNER', 'Property Owner'],
+  ['ARCHITECT_FIRM', 'Architect Firm'], ['ENGINEERING_CONSULTANT', 'Engineering Consultant'],
+  ['PROJECT_MANAGEMENT_CONSULTANT', 'Project Management Consultant'],
+  ['CONTRACTOR', 'Contractor'], ['SUBCONTRACTOR', 'Subcontractor'],
+  ['SUPPLIER', 'Supplier'], ['MANUFACTURER', 'Manufacturer'],
+  ['GOVERNMENT_ORGANIZATION', 'Government Organization'],
+  ['REAL_ESTATE_COMPANY', 'Real Estate Company'], ['INVESTOR', 'Investor'],
+  ['OTHER', 'Other'],
+] as const;
+
+const systemCrmContactTypes = [
+  ['DECISION_MAKER', 'Decision Maker'], ['OWNER', 'Owner'], ['DIRECTOR', 'Director'],
+  ['CEO', 'CEO'], ['CFO', 'CFO'], ['PROJECT_MANAGER', 'Project Manager'],
+  ['ARCHITECT', 'Architect'], ['ENGINEER', 'Engineer'], ['CONSULTANT', 'Consultant'],
+  ['PROCUREMENT_OFFICER', 'Procurement Officer'], ['QUANTITY_SURVEYOR', 'Quantity Surveyor'],
+  ['SITE_MANAGER', 'Site Manager'], ['ACCOUNTANT', 'Accountant'],
+  ['SALES_CONTACT', 'Sales Contact'], ['TECHNICAL_CONTACT', 'Technical Contact'],
+  ['OTHER', 'Other'],
+] as const;
 
 const systemEmploymentTypes = [
   ['PERMANENT', 'Permanent'],
@@ -349,10 +458,44 @@ async function seedWorkforceCatalog(): Promise<void> {
   }
 }
 
+async function seedLeadCatalog(): Promise<void> {
+  for (const [index, [code, name]] of systemLeadTypes.entries()) {
+    const existing = await prisma.leadTypeDefinition.findFirst({ where: { companyId: null, code } });
+    if (existing) {
+      await prisma.leadTypeDefinition.update({ where: { id: existing.id }, data: { name, isSystem: true, sortOrder: (index + 1) * 10, deletedAt: null } });
+    } else {
+      await prisma.leadTypeDefinition.create({ data: { code, name, isSystem: true, sortOrder: (index + 1) * 10 } });
+    }
+  }
+  for (const [index, [code, name]] of systemLeadSources.entries()) {
+    const existing = await prisma.leadSourceDefinition.findFirst({ where: { companyId: null, code } });
+    if (existing) {
+      await prisma.leadSourceDefinition.update({ where: { id: existing.id }, data: { name, isSystem: true, sortOrder: (index + 1) * 10, deletedAt: null } });
+    } else {
+      await prisma.leadSourceDefinition.create({ data: { code, name, isSystem: true, sortOrder: (index + 1) * 10 } });
+    }
+  }
+}
+
+async function seedCrmPartyCatalog(): Promise<void> {
+  for (const [index, [code, name]] of systemCrmCompanyTypes.entries()) {
+    const existing = await prisma.crmCompanyTypeDefinition.findFirst({ where: { companyId: null, code } });
+    if (existing) await prisma.crmCompanyTypeDefinition.update({ where: { id: existing.id }, data: { name, isSystem: true, sortOrder: (index + 1) * 10, deletedAt: null } });
+    else await prisma.crmCompanyTypeDefinition.create({ data: { code, name, isSystem: true, sortOrder: (index + 1) * 10 } });
+  }
+  for (const [index, [code, name]] of systemCrmContactTypes.entries()) {
+    const existing = await prisma.crmContactTypeDefinition.findFirst({ where: { companyId: null, code } });
+    if (existing) await prisma.crmContactTypeDefinition.update({ where: { id: existing.id }, data: { name, isSystem: true, sortOrder: (index + 1) * 10, deletedAt: null } });
+    else await prisma.crmContactTypeDefinition.create({ data: { code, name, isSystem: true, sortOrder: (index + 1) * 10 } });
+  }
+}
+
 async function main(): Promise<void> {
   await seedPermissionsAndRoles();
   await seedProjectCatalog();
   await seedWorkforceCatalog();
+  await seedLeadCatalog();
+  await seedCrmPartyCatalog();
   await seedBootstrapAdministrator();
 }
 

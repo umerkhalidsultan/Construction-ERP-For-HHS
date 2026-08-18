@@ -1,33 +1,40 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Alert } from '../../components/ui/Alert';
-import { Badge, statusTone } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
-import { PageHeader } from '../../components/ui/PageHeader';
-import { ApiError } from '../../lib/api-client';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { ConfirmDialog } from "../../components/feedback/ConfirmDialog";
+import { QueryErrorState } from "../../components/feedback/FormErrorSummary";
+import { useToast } from "../../components/feedback/Toast";
+import { Alert } from "../../components/ui/Alert";
+import { Badge, statusTone } from "../../components/ui/Badge";
+import { Button } from "../../components/ui/Button";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { ApiError } from "../../lib/api-client";
+import { userErrorMessage } from "../../lib/api-client";
 import {
   deleteCompany,
   getCompany,
   getCompanyDashboard,
   restoreCompany,
-} from '../../services/companies.service';
-import { useAuthStore } from '../../store/auth.store';
+} from "../../services/companies.service";
+import { useAuthStore } from "../../store/auth.store";
 
 export function CompanyDetailPage() {
-  const { companyId = '' } = useParams();
+  const { companyId = "" } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const setActiveCompany = useAuthStore((state) => state.setActiveCompany);
   const isPlatformAdmin = useAuthStore((state) => state.user?.isPlatformAdmin);
+  const [confirmArchive, setConfirmArchive] = useState(false);
+  const toast = useToast();
 
   const companyQuery = useQuery({
-    queryKey: ['company', companyId],
+    queryKey: ["company", companyId],
     queryFn: async () => (await getCompany(companyId)).data,
     enabled: Boolean(companyId),
   });
 
   const dashboardQuery = useQuery({
-    queryKey: ['company-dashboard', companyId],
+    queryKey: ["company-dashboard", companyId],
     queryFn: async () => (await getCompanyDashboard(companyId)).data,
     enabled: Boolean(companyId),
   });
@@ -35,23 +42,36 @@ export function CompanyDetailPage() {
   const archiveMutation = useMutation({
     mutationFn: async () => deleteCompany(companyId),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['companies'] });
-      await queryClient.invalidateQueries({ queryKey: ['company', companyId] });
+      await queryClient.invalidateQueries({ queryKey: ["companies"] });
+      await queryClient.invalidateQueries({ queryKey: ["company", companyId] });
+      toast.success("Company archived.");
     },
   });
 
   const restoreMutation = useMutation({
     mutationFn: async () => restoreCompany(companyId),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['companies'] });
-      await queryClient.invalidateQueries({ queryKey: ['company', companyId] });
+      await queryClient.invalidateQueries({ queryKey: ["companies"] });
+      await queryClient.invalidateQueries({ queryKey: ["company", companyId] });
+      toast.success("Company restored.");
     },
   });
 
   const company = companyQuery.data;
 
   if (companyQuery.isLoading) {
-    return <div className="h-40 animate-pulse border border-slate-200 bg-white" />;
+    return (
+      <div className="h-40 animate-pulse border border-slate-200 bg-white" />
+    );
+  }
+
+  if (companyQuery.isError) {
+    return (
+      <QueryErrorState
+        message={userErrorMessage(companyQuery.error)}
+        onRetry={() => void companyQuery.refetch()}
+      />
+    );
   }
 
   if (!company) {
@@ -74,7 +94,7 @@ export function CompanyDetailPage() {
                   displayName: company.displayName,
                   status: company.status,
                 });
-                navigate('/dashboard');
+                navigate("/dashboard");
               }}
             >
               Set active
@@ -89,15 +109,7 @@ export function CompanyDetailPage() {
               <Button
                 variant="danger"
                 disabled={archiveMutation.isPending}
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      'Archive this company? Active memberships will be deactivated.',
-                    )
-                  ) {
-                    archiveMutation.mutate();
-                  }
-                }}
+                onClick={() => setConfirmArchive(true)}
               >
                 Archive
               </Button>
@@ -114,12 +126,26 @@ export function CompanyDetailPage() {
         }
       />
 
+      <ConfirmDialog
+        open={confirmArchive}
+        title="Archive company?"
+        description="Active memberships will be deactivated. You can restore the company later."
+        confirmLabel="Archive company"
+        danger
+        pending={archiveMutation.isPending}
+        onCancel={() => setConfirmArchive(false)}
+        onConfirm={() => {
+          setConfirmArchive(false);
+          archiveMutation.mutate();
+        }}
+      />
+
       {(archiveMutation.isError || restoreMutation.isError) && (
         <Alert>
           {(archiveMutation.error ?? restoreMutation.error) instanceof ApiError
             ? ((archiveMutation.error ?? restoreMutation.error) as ApiError)
                 .message
-            : 'Company mutation failed'}
+            : "Company mutation failed"}
         </Alert>
       )}
 
@@ -128,20 +154,20 @@ export function CompanyDetailPage() {
           <h2 className="text-sm font-semibold text-slate-900">Profile</h2>
           <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
             {[
-              ['Email', company.email ?? '—'],
-              ['Phone', company.phone ?? '—'],
-              ['Website', company.website ?? '—'],
-              ['Industry', company.industry ?? '—'],
-              ['Type', company.companyType],
-              ['Timezone', company.timezone],
-              ['Currency', company.currency],
-              ['Country', company.country],
-              ['Province', company.province ?? '—'],
-              ['City', company.city ?? '—'],
-              ['Postal code', company.postalCode ?? '—'],
-              ['Tax registration', company.taxRegistrationNumber ?? '—'],
-              ['National tax', company.nationalTaxNumber ?? '—'],
-              ['Registration no.', company.registrationNumber ?? '—'],
+              ["Email", company.email ?? "—"],
+              ["Phone", company.phone ?? "—"],
+              ["Website", company.website ?? "—"],
+              ["Industry", company.industry ?? "—"],
+              ["Type", company.companyType],
+              ["Timezone", company.timezone],
+              ["Currency", company.currency],
+              ["Country", company.country],
+              ["Province", company.province ?? "—"],
+              ["City", company.city ?? "—"],
+              ["Postal code", company.postalCode ?? "—"],
+              ["Tax registration", company.taxRegistrationNumber ?? "—"],
+              ["National tax", company.nationalTaxNumber ?? "—"],
+              ["Registration no.", company.registrationNumber ?? "—"],
             ].map(([label, value]) => (
               <div key={label}>
                 <dt className="text-slate-500">{label}</dt>
@@ -150,7 +176,7 @@ export function CompanyDetailPage() {
             ))}
           </dl>
           <p className="mt-4 text-sm text-slate-600">
-            {company.address ?? 'No address recorded.'}
+            {company.address ?? "No address recorded."}
           </p>
         </section>
 
@@ -172,25 +198,25 @@ export function CompanyDetailPage() {
               <div className="flex justify-between">
                 <dt className="text-slate-500">Branches</dt>
                 <dd className="font-medium">
-                  {dashboardQuery.data?.branchCount ?? '—'}
+                  {dashboardQuery.data?.branchCount ?? "—"}
                 </dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-slate-500">Departments</dt>
                 <dd className="font-medium">
-                  {dashboardQuery.data?.departmentCount ?? '—'}
+                  {dashboardQuery.data?.departmentCount ?? "—"}
                 </dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-slate-500">Employees</dt>
                 <dd className="font-medium">
-                  {dashboardQuery.data?.employeeCount ?? '—'}
+                  {dashboardQuery.data?.employeeCount ?? "—"}
                 </dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-slate-500">Projects</dt>
                 <dd className="font-medium">
-                  {dashboardQuery.data?.projectCount ?? '—'}
+                  {dashboardQuery.data?.projectCount ?? "—"}
                 </dd>
               </div>
             </dl>

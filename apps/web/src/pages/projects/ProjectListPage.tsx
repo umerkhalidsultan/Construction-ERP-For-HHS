@@ -13,6 +13,7 @@ import {
   listProjectTypes,
 } from '../../services/projects.service';
 import type { Project } from '../../types/api';
+import { userErrorMessage } from '../../lib/api-client';
 
 export function ProjectListPage() {
   const { companyId = '' } = useParams();
@@ -136,6 +137,10 @@ export function ProjectListPage() {
 
       <DataTable<Project>
         isLoading={projectsQuery.isLoading}
+        error={
+          projectsQuery.isError ? userErrorMessage(projectsQuery.error) : null
+        }
+        onRetry={() => void projectsQuery.refetch()}
         rows={projectsQuery.data?.items ?? []}
         emptyMessage="No projects found. Create the first project to unlock BOQ, procurement, and site modules."
         columns={[

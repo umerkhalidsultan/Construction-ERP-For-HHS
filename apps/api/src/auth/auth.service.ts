@@ -60,6 +60,18 @@ export class AuthService {
     });
 
     if (!user || !(await bcrypt.compare(dto.password, user.password))) {
+      if (user) {
+        await this.prisma.userSecurityLog.create({
+          data: {
+            userId: user.id,
+            event: 'LOGIN_FAILED',
+            success: false,
+            ipAddress: metadata.ipAddress,
+            userAgent: metadata.userAgent,
+            metadata: { companyId: dto.companyId ?? null },
+          },
+        });
+      }
       throw new UnauthorizedException('Invalid email or password');
     }
 
@@ -87,6 +99,8 @@ export class AuthService {
         ? { id: activeMembership.id, companyId: activeMembership.companyId }
         : null,
       metadata,
+      'LOGIN_SUCCEEDED',
+      true,
     );
 
     const payload = {
@@ -172,6 +186,7 @@ export class AuthService {
         ? { id: activeMembership.id, companyId: activeMembership.companyId }
         : null,
       metadata,
+      'TOKEN_REFRESHED',
     );
   }
 
@@ -191,6 +206,13 @@ export class AuthService {
         },
         data: { revokedAt: new Date(), updatedBy: payload.sub },
       });
+      await this.prisma.userSecurityLog.create({
+        data: {
+          userId: payload.sub,
+          event: 'LOGOUT',
+          metadata: { sessionId: payload.sessionId },
+        },
+      });
     } catch {
       // Logout is idempotent and intentionally does not disclose token validity.
     }
@@ -200,6 +222,8 @@ export class AuthService {
     user: { id: string; email: string; isPlatformAdmin: boolean },
     membership: { id: string; companyId: string } | null,
     metadata: ClientMetadata,
+    securityEvent: 'LOGIN_SUCCEEDED' | 'TOKEN_REFRESHED',
+    recordLastLogin = false,
   ) {
     const sessionId = randomUUID();
     const accessTtl = this.config.get<number>('JWT_ACCESS_TTL_SECONDS', 900);
@@ -233,18 +257,40 @@ export class AuthService {
       }),
     ]);
 
-    await this.prisma.session.create({
-      data: {
-        id: sessionId,
-        userId: user.id,
-        refreshTokenHash: this.hashToken(refreshToken),
-        expiresAt: new Date(Date.now() + refreshTtl * 1000),
-        ipAddress: metadata.ipAddress,
-        userAgent: metadata.userAgent,
-        createdBy: user.id,
-        updatedBy: user.id,
-      },
-    });
+    await this.prisma.$transaction([
+      this.prisma.session.create({
+        data: {
+          id: sessionId,
+          userId: user.id,
+          refreshTokenHash: this.hashToken(refreshToken),
+          expiresAt: new Date(Date.now() + refreshTtl * 1000),
+          ipAddress: metadata.ipAddress,
+          userAgent: metadata.userAgent,
+          createdBy: user.id,
+          updatedBy: user.id,
+        },
+      }),
+      this.prisma.userSecurityLog.create({
+        data: {
+          userId: user.id,
+          event: securityEvent,
+          ipAddress: metadata.ipAddress,
+          userAgent: metadata.userAgent,
+          metadata: {
+            sessionId,
+            companyId: membership?.companyId ?? null,
+          },
+        },
+      }),
+      ...(recordLastLogin
+        ? [
+            this.prisma.user.update({
+              where: { id: user.id },
+              data: { lastLoginAt: new Date(), updatedBy: user.id },
+            }),
+          ]
+        : []),
+    ]);
 
     return {
       accessToken,

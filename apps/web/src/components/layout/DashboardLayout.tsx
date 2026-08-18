@@ -1,5 +1,7 @@
 import {
   Building2,
+  BriefcaseBusiness,
+  ContactRound,
   FolderKanban,
   GitBranch,
   Layers3,
@@ -38,6 +40,26 @@ export function DashboardLayout() {
             to: `/companies/${companyId}/projects`,
             label: 'Projects',
             icon: FolderKanban,
+          },
+          {
+            to: `/companies/${companyId}/crm/leads`,
+            label: 'CRM · Leads',
+            icon: BriefcaseBusiness,
+          },
+          {
+            to: `/companies/${companyId}/crm/companies`,
+            label: 'CRM · Companies',
+            icon: Building2,
+          },
+          {
+            to: `/companies/${companyId}/crm/contacts`,
+            label: 'CRM · Contacts',
+            icon: ContactRound,
+          },
+          {
+            to: `/companies/${companyId}/employees`,
+            label: 'Employees',
+            icon: Users,
           },
           {
             to: `/companies/${companyId}/settings`,

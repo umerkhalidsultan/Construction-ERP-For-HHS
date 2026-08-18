@@ -4,7 +4,7 @@
   "private": true,
   "description": "Enterprise Construction ERP",
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "ts-node --project apps/api/tsconfig.json --transpile-only prisma/seed.ts"
   },
   "engines": {
     "node": ">=20 <25"
@@ -27,7 +27,7 @@
     "db:validate": "prisma validate --schema=prisma/schema.prisma",
     "db:migrate": "prisma migrate dev --schema=prisma/schema.prisma",
     "db:migrate:deploy": "prisma migrate deploy --schema=prisma/schema.prisma",
-    "db:seed": "tsx prisma/seed.ts",
+    "db:seed": "ts-node --project apps/api/tsconfig.json --transpile-only prisma/seed.ts",
     "db:studio": "prisma studio --schema=prisma/schema.prisma"
   },
   "devDependencies": {

@@ -9,7 +9,8 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Select } from '../../components/ui/Select';
-import { ApiError } from '../../lib/api-client';
+import { ApiError, userErrorMessage } from '../../lib/api-client';
+import { applyApiFieldErrors } from '../../lib/errors/apply-field-errors';
 import {
   isHttpWebsiteUrl,
   normalizeWebsiteUrl,
@@ -22,9 +23,9 @@ import {
 } from '../../services/companies.service';
 
 const companySchema = z.object({
-  legalName: z.string().min(2).max(255),
-  displayName: z.string().min(2).max(160),
-  email: z.string().email().optional().or(z.literal('')),
+  legalName: z.string().min(2, 'Legal Name is required.').max(255),
+  displayName: z.string().min(2, 'Display Name is required.').max(160),
+  email: z.string().email('Please enter a valid email address.').optional().or(z.literal('')),
   phone: z.string().optional(),
   website: z
     .string()
@@ -128,6 +129,11 @@ export function CompanyFormPage() {
       await queryClient.invalidateQueries({ queryKey: ['company', savedId] });
       navigate(`/companies/${savedId}`);
     },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        applyApiFieldErrors(form.setError, error);
+      }
+    },
   });
 
   return (
@@ -140,9 +146,7 @@ export function CompanyFormPage() {
       {mutation.isError ? (
         <div className="mb-4">
           <Alert>
-            {mutation.error instanceof ApiError
-              ? mutation.error.message
-              : 'Unable to save company'}
+            {userErrorMessage(mutation.error)}
           </Alert>
         </div>
       ) : null}

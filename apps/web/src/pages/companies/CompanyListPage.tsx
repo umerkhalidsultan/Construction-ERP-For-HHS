@@ -9,6 +9,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { listCompanies } from '../../services/companies.service';
 import { useAuthStore } from '../../store/auth.store';
 import type { Company } from '../../types/api';
+import { userErrorMessage } from '../../lib/api-client';
 
 export function CompanyListPage() {
   const [search, setSearch] = useState('');
@@ -53,6 +54,12 @@ export function CompanyListPage() {
 
       <DataTable<Company>
         isLoading={companiesQuery.isLoading}
+        error={
+          companiesQuery.isError
+            ? userErrorMessage(companiesQuery.error)
+            : null
+        }
+        onRetry={() => void companiesQuery.refetch()}
         rows={companiesQuery.data?.items ?? []}
         emptyMessage="No companies available for your account."
         columns={[

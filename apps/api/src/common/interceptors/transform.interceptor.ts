@@ -41,6 +41,7 @@ export class TransformInterceptor<T> implements NestInterceptor<
         const data = result && 'data' in result ? (result.data ?? null) : value;
         return {
           status: 'success' as const,
+          success: true,
           message: result?.message ?? 'Operation successful',
           data: this.jsonSafe(data) as T,
           pagination: result?.pagination,

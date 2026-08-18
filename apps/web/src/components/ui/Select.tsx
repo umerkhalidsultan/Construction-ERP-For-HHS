@@ -23,6 +23,8 @@ export function Select({
       ) : null}
       <select
         id={selectId}
+        aria-invalid={Boolean(error) || undefined}
+        aria-describedby={error ? `${selectId}-error` : undefined}
         className={cn(
           'block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200',
           error && 'border-red-500 focus:border-red-500 focus:ring-red-200',
@@ -36,7 +38,11 @@ export function Select({
           </option>
         ))}
       </select>
-      {error ? <span className="text-xs text-red-600">{error}</span> : null}
+      {error ? (
+        <span id={`${selectId}-error`} className="text-xs text-red-600">
+          {error}
+        </span>
+      ) : null}
     </label>
   );
 }

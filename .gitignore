@@ -8,8 +8,6 @@ coverage/
 # Runtime configuration
 .env
 
-!.env.e
-
 # Logs and temporary files
 *.log
 npm-debug.log*
@@ -20,6 +18,9 @@ npm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+.vscode/
+.cursor/
+.claude/
 
 # Uploaded development assets
 uploads/

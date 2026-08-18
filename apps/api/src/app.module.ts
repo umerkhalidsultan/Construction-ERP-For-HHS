@@ -19,6 +19,9 @@ import { RequestContextMiddleware } from './common/middleware/request-context.mi
 import { environmentValidationSchema } from './config/environment.validation';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
+import { WorkforceModule } from './workforce/workforce.module';
+import { QualityModule } from './quality/quality.module';
+import { CrmModule } from './crm/crm.module';
 
 @Module({
   imports: [
@@ -49,6 +52,9 @@ import { PermissionsGuard } from './common/guards/permissions.guard';
     AuditModule,
     StorageModule,
     NotificationsModule,
+    WorkforceModule,
+    QualityModule,
+    CrmModule,
   ],
   controllers: [AppController],
   providers: [

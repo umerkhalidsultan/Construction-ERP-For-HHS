@@ -43,7 +43,9 @@ export class PermissionsGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const principal = request.user;
     if (!principal) {
-      throw new ForbiddenException('Authenticated principal is required');
+      throw new ForbiddenException(
+        "You don't have permission to perform this action.",
+      );
     }
     if (principal.isPlatformAdmin) {
       return true;
@@ -54,10 +56,10 @@ export class PermissionsGuard implements CanActivate {
       routeCompanyId &&
       (!principal.companyId || routeCompanyId !== principal.companyId)
     ) {
-      throw new ForbiddenException('Cross-company access is denied');
+      throw new ForbiddenException("You don't have access to this section.");
     }
     if (!principal.companyId || !principal.membershipId) {
-      throw new ForbiddenException('An active company context is required');
+      throw new ForbiddenException("You don't have access to this section.");
     }
 
     const granted = await this.prisma.permission.findMany({
@@ -86,7 +88,9 @@ export class PermissionsGuard implements CanActivate {
 
     const grantedCodes = new Set(granted.map((permission) => permission.code));
     if (!required.every((permission) => grantedCodes.has(permission))) {
-      throw new ForbiddenException('Required permission is not granted');
+      throw new ForbiddenException(
+        "You don't have permission to perform this action.",
+      );
     }
     return true;
   }

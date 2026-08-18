@@ -6,13 +6,13 @@ import { z } from 'zod';
 import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { ApiError } from '../../lib/api-client';
+import { userErrorMessage } from '../../lib/api-client';
 import { login } from '../../services/auth.service';
 import { useAuthStore } from '../../store/auth.store';
 
 const loginSchema = z.object({
-  email: z.string().email('Enter a valid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  email: z.string().email('Please enter a valid email address.'),
+  password: z.string().min(8, 'Password must meet the required security requirements.'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -47,11 +47,7 @@ export function LoginPage() {
       );
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : 'Unable to sign in. Please try again.',
-      );
+      setError(userErrorMessage(err));
     }
   });
 

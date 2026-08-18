@@ -9,6 +9,8 @@ import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 import { TransformInterceptor } from './../src/common/interceptors/transform.interceptor';
 import { GlobalExceptionFilter } from './../src/common/filters/global-exception.filter';
+import { ValidationAppError } from './../src/common/errors/app-errors';
+import { mapValidationErrors } from './../src/common/errors/validation-error.mapper';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
@@ -29,6 +31,8 @@ describe('AppController (e2e)', () => {
         whitelist: true,
         transform: true,
         forbidNonWhitelisted: true,
+        exceptionFactory: (errors) =>
+          new ValidationAppError(mapValidationErrors(errors)),
       }),
     );
     app.useGlobalInterceptors(new TransformInterceptor());

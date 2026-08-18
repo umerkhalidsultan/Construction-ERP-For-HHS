@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationAppError } from './common/errors/app-errors';
+import { mapValidationErrors } from './common/errors/validation-error.mapper';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
@@ -45,6 +47,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
       stopAtFirstError: false,
       transformOptions: { enableImplicitConversion: true },
+      exceptionFactory: (errors) =>
+        new ValidationAppError(mapValidationErrors(errors)),
     }),
   );
   app.useGlobalInterceptors(new TransformInterceptor());

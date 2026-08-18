@@ -12,18 +12,42 @@ export function DataTable<T extends { id: string }>({
   rows,
   emptyMessage = 'No records found.',
   isLoading = false,
+  error,
+  onRetry,
 }: {
   columns: Column<T>[];
   rows: T[];
   emptyMessage?: string;
   isLoading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }) {
   if (isLoading) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-2" aria-busy="true" aria-live="polite">
         {[1, 2, 3, 4].map((item) => (
           <div key={item} className="h-12 animate-pulse rounded-md bg-slate-100" />
         ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        role="alert"
+        className="rounded-md border border-red-200 bg-red-50 px-4 py-8 text-center text-sm text-red-800"
+      >
+        <p>{error}</p>
+        {onRetry ? (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="mt-3 inline-flex rounded-md border border-red-300 bg-white px-3 py-1.5 text-sm font-medium text-red-800"
+          >
+            Retry
+          </button>
+        ) : null}
       </div>
     );
   }

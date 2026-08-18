@@ -17,6 +17,7 @@ import { AUDIT_SERVICE } from '../../audit/audit.interface';
 import type { IAuditService } from '../../audit/audit.interface';
 import { AuthenticatedPrincipal } from '../../common/context/request-context.types';
 import { PrismaService } from '../../prisma/prisma.service';
+import { QualityService } from '../../quality/quality.service';
 import {
   ActivityQueryDto,
   CreateActivityDto,
@@ -52,6 +53,7 @@ export class PlanningService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(AUDIT_SERVICE) private readonly audit: IAuditService,
+    private readonly quality: QualityService,
   ) {}
 
   async dashboard(
@@ -710,6 +712,13 @@ export class PlanningService {
       projectId,
       activityId,
     );
+    if (dto.percentComplete >= 100) {
+      await this.quality.assertActivityHoldPointsResolved(
+        companyId,
+        projectId,
+        activityId,
+      );
+    }
     if (
       dto.actualQuantity !== undefined &&
       previous.plannedQuantity &&

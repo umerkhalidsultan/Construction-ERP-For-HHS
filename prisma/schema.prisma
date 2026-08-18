@@ -303,6 +303,193 @@ enum CalendarEventType {
   OTHER
 }
 
+enum QualityPlanStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  SUPERSEDED
+  ARCHIVED
+}
+
+enum QualityItpStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  SUPERSEDED
+}
+
+enum QualityControlPoint {
+  HOLD
+  WITNESS
+  REVIEW
+  NONE
+}
+
+enum QualityInspectionType {
+  RECEIVING
+  MATERIAL
+  PRE_INSTALLATION
+  IN_PROCESS
+  FINAL
+  TESTING
+  PRE_COMMISSIONING
+  COMMISSIONING
+  CLIENT
+  CONSULTANT
+  THIRD_PARTY
+  OTHER
+}
+
+enum QualityInspectionStatus {
+  DRAFT
+  SUBMITTED
+  SCHEDULED
+  IN_INSPECTION
+  PASSED
+  PASSED_WITH_COMMENTS
+  REJECTED
+  REINSPECTION_REQUIRED
+  CANCELLED
+  CLOSED
+}
+
+enum QualityAnswerType {
+  YES_NO
+  PASS_FAIL
+  NUMERIC
+  TEXT
+  MULTIPLE_CHOICE
+  PHOTO_REQUIRED
+  DOCUMENT_REQUIRED
+}
+
+enum QualityResultStatus {
+  PENDING
+  PASS
+  FAIL
+  OVERRIDDEN
+}
+
+enum QualityNcrSeverity {
+  MINOR
+  MAJOR
+  CRITICAL
+}
+
+enum QualityNcrStatus {
+  CREATED
+  ASSIGNED
+  ROOT_CAUSE_ANALYSIS
+  CORRECTIVE_ACTION
+  IMPLEMENTATION
+  VERIFICATION
+  ACCEPTED
+  CLOSED
+  CANCELLED
+}
+
+enum QualityActionStatus {
+  OPEN
+  IN_PROGRESS
+  READY_FOR_VERIFICATION
+  VERIFIED
+  REJECTED
+  CLOSED
+}
+
+enum QualityIssueType {
+  DEFECT
+  PUNCH_ITEM
+  POSITIVE_OBSERVATION
+  WARNING
+  POTENTIAL_DEFECT
+  IMPROVEMENT
+  QUALITY_CONCERN
+}
+
+enum QualityIssueStatus {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  READY_FOR_INSPECTION
+  REJECTED
+  RESOLVED
+  VERIFIED
+  CLOSED
+}
+
+enum QualitySubmittalType {
+  MATERIAL
+  METHOD_STATEMENT
+}
+
+enum QualitySubmittalStatus {
+  DRAFT
+  SUBMITTED
+  QA_REVIEW
+  TECHNICAL_REVIEW
+  CONSULTANT_REVIEW
+  CLIENT_REVIEW
+  APPROVED
+  REJECTED
+  REVISE_RESUBMIT
+  SUPERSEDED
+}
+
+enum QualitySampleStatus {
+  COLLECTED
+  STORED
+  SENT_TO_LAB
+  TESTED
+  RETAINED
+  DISPOSED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  UNQUALIFIED
+  ON_HOLD
+  CONVERTED
+  LOST
+}
+
+enum LeadPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum CrmPartyStatus {
+  ACTIVE
+  INACTIVE
+  PROSPECT
+  BLOCKED
+}
+
+enum CrmContactStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum CrmPrimaryContactPurpose {
+  BUSINESS
+  ACCOUNTS
+  TECHNICAL
+  PROCUREMENT
+  OTHER
+}
+
+enum LeadPartyLinkStatus {
+  UNLINKED
+  LINKED
+  REVIEW_REQUIRED
+}
+
 model Company {
   id                    String             @id @default(uuid()) @db.Uuid
   companyCode           String             @db.VarChar(32)
@@ -336,28 +523,55 @@ model Company {
   updatedBy             String?            @db.Uuid
   deletedAt             DateTime?          @db.Timestamptz(3)
 
-  settings          CompanySettings?
-  branding          CompanyBranding?
-  memberships       CompanyMembership[]
-  roles             Role[]
-  branches          Branch[]
-  departments       Department[]
-  designations      Designation[]
-  businessUnits     BusinessUnit[]
-  regions           Region[]
-  costCenters       CostCenter[]
-  teams             Team[]
-  reportingLines    ReportingLine[]
-  documentSequences DocumentSequence[]
-  files             FileObject[]
-  auditLogs         AuditLog[]
-  projects          Project[]
-  projectStatusDefinitions ProjectStatusDefinition[]
-  projectTypeDefinitions   ProjectTypeDefinition[]
-  projectTags       ProjectTag[]
-  employees         Employee[]
-  employmentTypes   EmploymentType[]
-  workforceSkills   WorkforceSkill[]
+  settings                  CompanySettings?
+  branding                  CompanyBranding?
+  memberships               CompanyMembership[]
+  roles                     Role[]
+  branches                  Branch[]
+  departments               Department[]
+  designations              Designation[]
+  businessUnits             BusinessUnit[]
+  regions                   Region[]
+  costCenters               CostCenter[]
+  teams                     Team[]
+  reportingLines            ReportingLine[]
+  documentSequences         DocumentSequence[]
+  files                     FileObject[]
+  auditLogs                 AuditLog[]
+  projects                  Project[]
+  projectStatusDefinitions  ProjectStatusDefinition[]
+  projectTypeDefinitions    ProjectTypeDefinition[]
+  projectTags               ProjectTag[]
+  employees                 Employee[]
+  employmentTypes           EmploymentType[]
+  workforceSkills           WorkforceSkill[]
+  qualityStandards          QualityStandard[]
+  qualityPlans              QualityPlan[]
+  qualityItps               QualityItp[]
+  qualityInspections        QualityInspection[]
+  qualityChecklistTemplates QualityChecklistTemplate[]
+  qualityTestDefinitions    QualityTestDefinition[]
+  qualityTestResults        QualityTestResult[]
+  qualityNcrs               QualityNcr[]
+  qualityActions            QualityCorrectiveAction[]
+  qualityIssues             QualityIssue[]
+  qualityReworks            QualityRework[]
+  qualityOutboxEvents       QualityOutboxEvent[]
+  qualitySubmittals         QualitySubmittal[]
+  qualitySamples            QualitySample[]
+  leadTypes                 LeadTypeDefinition[]
+  leadSources               LeadSourceDefinition[]
+  leads                     Lead[]
+  leadNotes                 LeadNote[]
+  leadAttachments           LeadAttachment[]
+  crmCompanies              CrmCompany[]
+  crmContacts               CrmContact[]
+  crmCompanyTypes           CrmCompanyTypeDefinition[]
+  crmContactTypes           CrmContactTypeDefinition[]
+  crmCompanyNotes           CrmCompanyNote[]
+  crmContactNotes           CrmContactNote[]
+  crmCompanyAttachments     CrmCompanyAttachment[]
+  crmContactAttachments     CrmContactAttachment[]
 
   @@index([status, deletedAt])
   @@index([displayName])
@@ -405,23 +619,23 @@ model CompanySettings {
 }
 
 model CompanyBranding {
-  id                String    @id @default(uuid()) @db.Uuid
-  companyId         String    @unique @db.Uuid
-  logoFileId        String?   @db.Uuid
-  faviconFileId     String?   @db.Uuid
-  reportHeaderFileId String?  @db.Uuid
-  reportFooterFileId String?  @db.Uuid
-  emailLogoFileId   String?   @db.Uuid
-  watermarkFileId   String?   @db.Uuid
-  primaryColor      String    @default("#0F766E") @db.VarChar(9)
-  secondaryColor    String    @default("#0F172A") @db.VarChar(9)
-  accentColor       String    @default("#F59E0B") @db.VarChar(9)
-  theme             ThemeMode @default(LIGHT)
-  createdAt         DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime  @updatedAt @db.Timestamptz(3)
-  createdBy         String?   @db.Uuid
-  updatedBy         String?   @db.Uuid
-  deletedAt         DateTime? @db.Timestamptz(3)
+  id                 String    @id @default(uuid()) @db.Uuid
+  companyId          String    @unique @db.Uuid
+  logoFileId         String?   @db.Uuid
+  faviconFileId      String?   @db.Uuid
+  reportHeaderFileId String?   @db.Uuid
+  reportFooterFileId String?   @db.Uuid
+  emailLogoFileId    String?   @db.Uuid
+  watermarkFileId    String?   @db.Uuid
+  primaryColor       String    @default("#0F766E") @db.VarChar(9)
+  secondaryColor     String    @default("#0F172A") @db.VarChar(9)
+  accentColor        String    @default("#F59E0B") @db.VarChar(9)
+  theme              ThemeMode @default(LIGHT)
+  createdAt          DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime  @updatedAt @db.Timestamptz(3)
+  createdBy          String?   @db.Uuid
+  updatedBy          String?   @db.Uuid
+  deletedAt          DateTime? @db.Timestamptz(3)
 
   company      Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
   logo         FileObject? @relation("BrandingLogo", fields: [logoFileId], references: [id], onDelete: SetNull)
@@ -436,29 +650,29 @@ model CompanyBranding {
 }
 
 model User {
-  id            String     @id @default(uuid()) @db.Uuid
-  firstName     String     @db.VarChar(100)
-  lastName      String     @db.VarChar(100)
-  email         String     @unique @db.VarChar(320)
-  phone         String?    @db.VarChar(32)
-  password      String     @db.VarChar(255)
-  profilePhoto  String?    @db.VarChar(2048)
-  status        UserStatus @default(PENDING)
-  isPlatformAdmin Boolean  @default(false)
-  emailVerifiedAt DateTime? @db.Timestamptz(3)
-  mfaEnabled      Boolean    @default(false)
-  mfaSecretEncrypted String? @db.VarChar(1000)
-  lastLoginAt     DateTime?  @db.Timestamptz(3)
-  createdAt     DateTime   @default(now()) @db.Timestamptz(3)
-  updatedAt     DateTime   @updatedAt @db.Timestamptz(3)
-  createdBy     String?    @db.Uuid
-  updatedBy     String?    @db.Uuid
-  deletedAt     DateTime?  @db.Timestamptz(3)
+  id                 String     @id @default(uuid()) @db.Uuid
+  firstName          String     @db.VarChar(100)
+  lastName           String     @db.VarChar(100)
+  email              String     @unique @db.VarChar(320)
+  phone              String?    @db.VarChar(32)
+  password           String     @db.VarChar(255)
+  profilePhoto       String?    @db.VarChar(2048)
+  status             UserStatus @default(PENDING)
+  isPlatformAdmin    Boolean    @default(false)
+  emailVerifiedAt    DateTime?  @db.Timestamptz(3)
+  mfaEnabled         Boolean    @default(false)
+  mfaSecretEncrypted String?    @db.VarChar(1000)
+  lastLoginAt        DateTime?  @db.Timestamptz(3)
+  createdAt          DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime   @updatedAt @db.Timestamptz(3)
+  createdBy          String?    @db.Uuid
+  updatedBy          String?    @db.Uuid
+  deletedAt          DateTime?  @db.Timestamptz(3)
 
-  memberships CompanyMembership[]
-  sessions    Session[]
-  auditLogs   AuditLog[]
-  employees   Employee[]
+  memberships  CompanyMembership[]
+  sessions     Session[]
+  auditLogs    AuditLog[]
+  employees    Employee[]
   securityLogs UserSecurityLog[]
 
   @@index([status, deletedAt])
@@ -466,44 +680,47 @@ model User {
 }
 
 model CompanyMembership {
-  id              String           @id @default(uuid()) @db.Uuid
-  companyId       String           @db.Uuid
-  userId          String           @db.Uuid
-  employeeCode    String?          @db.VarChar(50)
-  designationId   String?          @db.Uuid
-  departmentId    String?          @db.Uuid
-  branchId        String?          @db.Uuid
-  teamId          String?          @db.Uuid
-  status          MembershipStatus @default(INVITED)
-  isCompanyOwner  Boolean          @default(false)
-  joinedAt        DateTime?        @db.Timestamptz(3)
-  createdAt       DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt       DateTime         @updatedAt @db.Timestamptz(3)
-  createdBy       String?          @db.Uuid
-  updatedBy       String?          @db.Uuid
-  deletedAt       DateTime?        @db.Timestamptz(3)
+  id             String           @id @default(uuid()) @db.Uuid
+  companyId      String           @db.Uuid
+  userId         String           @db.Uuid
+  employeeCode   String?          @db.VarChar(50)
+  designationId  String?          @db.Uuid
+  departmentId   String?          @db.Uuid
+  branchId       String?          @db.Uuid
+  teamId         String?          @db.Uuid
+  status         MembershipStatus @default(INVITED)
+  isCompanyOwner Boolean          @default(false)
+  joinedAt       DateTime?        @db.Timestamptz(3)
+  createdAt      DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime         @updatedAt @db.Timestamptz(3)
+  createdBy      String?          @db.Uuid
+  updatedBy      String?          @db.Uuid
+  deletedAt      DateTime?        @db.Timestamptz(3)
 
-  company          Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  user             User           @relation(fields: [userId], references: [id], onDelete: Restrict)
-  designation      Designation?   @relation(fields: [designationId, companyId], references: [id, companyId], onDelete: Restrict)
-  department       Department?    @relation(fields: [departmentId, companyId], references: [id, companyId], onDelete: Restrict)
-  branch           Branch?        @relation(fields: [branchId, companyId], references: [id, companyId], onDelete: Restrict)
-  team             Team?          @relation(fields: [teamId, companyId], references: [id, companyId], onDelete: Restrict)
-  roles            MembershipRole[]
-  managedBranches  Branch[]       @relation("BranchManager")
-  headedDepartments Department[]  @relation("DepartmentHead")
-  managedBusinessUnits BusinessUnit[] @relation("BusinessUnitManager")
-  managedRegions   Region[]       @relation("RegionManager")
-  managedCostCenters CostCenter[] @relation("CostCenterManager")
-  ledTeams         Team[]         @relation("TeamLead")
-  reportsTo        ReportingLine[] @relation("ReportingSubordinate")
-  directReports    ReportingLine[] @relation("ReportingManager")
-  managedProjects  Project[]      @relation("ProjectManager")
-  siteEngineeredProjects Project[] @relation("ProjectSiteEngineer")
+  company                Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  user                   User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  designation            Designation?        @relation(fields: [designationId, companyId], references: [id, companyId], onDelete: Restrict)
+  department             Department?         @relation(fields: [departmentId, companyId], references: [id, companyId], onDelete: Restrict)
+  branch                 Branch?             @relation(fields: [branchId, companyId], references: [id, companyId], onDelete: Restrict)
+  team                   Team?               @relation(fields: [teamId, companyId], references: [id, companyId], onDelete: Restrict)
+  roles                  MembershipRole[]
+  managedBranches        Branch[]            @relation("BranchManager")
+  headedDepartments      Department[]        @relation("DepartmentHead")
+  managedBusinessUnits   BusinessUnit[]      @relation("BusinessUnitManager")
+  managedRegions         Region[]            @relation("RegionManager")
+  managedCostCenters     CostCenter[]        @relation("CostCenterManager")
+  ledTeams               Team[]              @relation("TeamLead")
+  reportsTo              ReportingLine[]     @relation("ReportingSubordinate")
+  directReports          ReportingLine[]     @relation("ReportingManager")
+  managedProjects        Project[]           @relation("ProjectManager")
+  siteEngineeredProjects Project[]           @relation("ProjectSiteEngineer")
   projectTeamMemberships ProjectTeamMember[]
-  assignedProjectTasks ProjectTask[] @relation("ProjectTaskAssignee")
-  supervisedProjectTasks ProjectTask[] @relation("ProjectTaskSupervisor")
-  employee Employee?
+  assignedProjectTasks   ProjectTask[]       @relation("ProjectTaskAssignee")
+  supervisedProjectTasks ProjectTask[]       @relation("ProjectTaskSupervisor")
+  employee               Employee?
+  assignedLeads          Lead[]               @relation("LeadAssignee")
+  assignedCrmCompanies   CrmCompany[]          @relation("CrmCompanyAssignee")
+  assignedCrmContacts    CrmContact[]          @relation("CrmContactAssignee")
 
   @@unique([companyId, userId])
   @@unique([id, companyId])
@@ -524,7 +741,7 @@ model Role {
   updatedBy   String?   @db.Uuid
   deletedAt   DateTime? @db.Timestamptz(3)
 
-  company     Company?        @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  company     Company?         @relation(fields: [companyId], references: [id], onDelete: Restrict)
   permissions RolePermission[]
   memberships MembershipRole[]
 
@@ -628,11 +845,11 @@ model Branch {
   updatedBy           String?      @db.Uuid
   deletedAt           DateTime?    @db.Timestamptz(3)
 
-  company      Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  manager      CompanyMembership? @relation("BranchManager", fields: [managerMembershipId, companyId], references: [id, companyId], onDelete: Restrict)
-  businessUnit BusinessUnit?      @relation(fields: [businessUnitId, companyId], references: [id, companyId], onDelete: Restrict)
-  region       Region?            @relation(fields: [regionId, companyId], references: [id, companyId], onDelete: Restrict)
-  memberships CompanyMembership[]
+  company      Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  manager      CompanyMembership?  @relation("BranchManager", fields: [managerMembershipId, companyId], references: [id, companyId], onDelete: Restrict)
+  businessUnit BusinessUnit?       @relation(fields: [businessUnitId, companyId], references: [id, companyId], onDelete: Restrict)
+  region       Region?             @relation(fields: [regionId, companyId], references: [id, companyId], onDelete: Restrict)
+  memberships  CompanyMembership[]
   teams        Team[]
   sequences    DocumentSequence[]
   projects     Project[]
@@ -646,29 +863,29 @@ model Branch {
 }
 
 model Department {
-  id                  String       @id @default(uuid()) @db.Uuid
-  companyId           String       @db.Uuid
-  departmentCode      String       @db.VarChar(50)
-  name                String       @db.VarChar(160)
-  headMembershipId    String?      @db.Uuid
-  parentDepartmentId  String?      @db.Uuid
-  description         String?      @db.VarChar(1000)
-  status              EntityStatus @default(ACTIVE)
-  createdAt           DateTime     @default(now()) @db.Timestamptz(3)
-  updatedAt           DateTime     @updatedAt @db.Timestamptz(3)
-  createdBy           String?      @db.Uuid
-  updatedBy           String?      @db.Uuid
-  deletedAt           DateTime?    @db.Timestamptz(3)
+  id                 String       @id @default(uuid()) @db.Uuid
+  companyId          String       @db.Uuid
+  departmentCode     String       @db.VarChar(50)
+  name               String       @db.VarChar(160)
+  headMembershipId   String?      @db.Uuid
+  parentDepartmentId String?      @db.Uuid
+  description        String?      @db.VarChar(1000)
+  status             EntityStatus @default(ACTIVE)
+  createdAt          DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime     @updatedAt @db.Timestamptz(3)
+  createdBy          String?      @db.Uuid
+  updatedBy          String?      @db.Uuid
+  deletedAt          DateTime?    @db.Timestamptz(3)
 
-  company      Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  head         CompanyMembership? @relation("DepartmentHead", fields: [headMembershipId, companyId], references: [id, companyId], onDelete: Restrict)
-  parent       Department?        @relation("DepartmentTree", fields: [parentDepartmentId, companyId], references: [id, companyId], onDelete: Restrict)
-  children     Department[]       @relation("DepartmentTree")
+  company     Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  head        CompanyMembership?  @relation("DepartmentHead", fields: [headMembershipId, companyId], references: [id, companyId], onDelete: Restrict)
+  parent      Department?         @relation("DepartmentTree", fields: [parentDepartmentId, companyId], references: [id, companyId], onDelete: Restrict)
+  children    Department[]        @relation("DepartmentTree")
   memberships CompanyMembership[]
-  teams        Team[]
-  projects     Project[]
-  employees    Employee[]
-  employments  Employment[]
+  teams       Team[]
+  projects    Project[]
+  employees   Employee[]
+  employments Employment[]
 
   @@unique([id, companyId])
   @@index([companyId, departmentCode, deletedAt])
@@ -792,11 +1009,11 @@ model Team {
   updatedBy        String?      @db.Uuid
   deletedAt        DateTime?    @db.Timestamptz(3)
 
-  company      Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  department   Department?        @relation(fields: [departmentId, companyId], references: [id, companyId], onDelete: Restrict)
-  branch       Branch?            @relation(fields: [branchId, companyId], references: [id, companyId], onDelete: Restrict)
-  lead         CompanyMembership? @relation("TeamLead", fields: [leadMembershipId, companyId], references: [id, companyId], onDelete: Restrict)
-  memberships CompanyMembership[]
+  company             Company                  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  department          Department?              @relation(fields: [departmentId, companyId], references: [id, companyId], onDelete: Restrict)
+  branch              Branch?                  @relation(fields: [branchId, companyId], references: [id, companyId], onDelete: Restrict)
+  lead                CompanyMembership?       @relation("TeamLead", fields: [leadMembershipId, companyId], references: [id, companyId], onDelete: Restrict)
+  memberships         CompanyMembership[]
   employeeMemberships EmployeeTeamMembership[]
 
   @@unique([id, companyId])
@@ -871,39 +1088,42 @@ model FileObject {
   updatedBy       String?         @db.Uuid
   deletedAt       DateTime?       @db.Timestamptz(3)
 
-  company               Company           @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  brandingLogos         CompanyBranding[] @relation("BrandingLogo")
-  brandingFavicons      CompanyBranding[] @relation("BrandingFavicon")
-  brandingReportHeaders CompanyBranding[] @relation("BrandingReportHeader")
-  brandingReportFooters CompanyBranding[] @relation("BrandingReportFooter")
-  brandingEmailLogos    CompanyBranding[] @relation("BrandingEmailLogo")
-  brandingWatermarks    CompanyBranding[] @relation("BrandingWatermark")
-  projectDocuments      ProjectDocument[]
-  employeeDocuments EmployeeDocument[]
+  company                Company                 @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  brandingLogos          CompanyBranding[]       @relation("BrandingLogo")
+  brandingFavicons       CompanyBranding[]       @relation("BrandingFavicon")
+  brandingReportHeaders  CompanyBranding[]       @relation("BrandingReportHeader")
+  brandingReportFooters  CompanyBranding[]       @relation("BrandingReportFooter")
+  brandingEmailLogos     CompanyBranding[]       @relation("BrandingEmailLogo")
+  brandingWatermarks     CompanyBranding[]       @relation("BrandingWatermark")
+  projectDocuments       ProjectDocument[]
+  employeeDocuments      EmployeeDocument[]
   employeeCertifications EmployeeCertification[]
-  employeeLicenses EmployeeLicense[]
+  employeeLicenses       EmployeeLicense[]
+  leadAttachments        LeadAttachment[]
+  crmCompanyAttachments  CrmCompanyAttachment[]
+  crmContactAttachments  CrmContactAttachment[]
 
   @@index([companyId, purpose, status, deletedAt])
   @@map("file_objects")
 }
 
 model AuditLog {
-  id         String    @id @default(uuid()) @db.Uuid
-  companyId  String?   @db.Uuid
-  userId     String?   @db.Uuid
-  action     String    @db.VarChar(120)
-  entity     String    @db.VarChar(120)
-  entityId   String    @db.Uuid
-  oldValue   Json?
-  newValue   Json?
-  ipAddress  String?   @db.VarChar(64)
-  browser    String?   @db.VarChar(1000)
-  requestId  String?   @db.VarChar(100)
-  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt  DateTime  @updatedAt @db.Timestamptz(3)
-  createdBy  String?   @db.Uuid
-  updatedBy  String?   @db.Uuid
-  deletedAt  DateTime? @db.Timestamptz(3)
+  id        String    @id @default(uuid()) @db.Uuid
+  companyId String?   @db.Uuid
+  userId    String?   @db.Uuid
+  action    String    @db.VarChar(120)
+  entity    String    @db.VarChar(120)
+  entityId  String    @db.Uuid
+  oldValue  Json?
+  newValue  Json?
+  ipAddress String?   @db.VarChar(64)
+  browser   String?   @db.VarChar(1000)
+  requestId String?   @db.VarChar(100)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  createdBy String?   @db.Uuid
+  updatedBy String?   @db.Uuid
+  deletedAt DateTime? @db.Timestamptz(3)
 
   company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
   user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -911,6 +1131,433 @@ model AuditLog {
   @@index([companyId, entity, entityId, createdAt])
   @@index([userId, createdAt])
   @@map("audit_logs")
+}
+
+// -----------------------------------------------------------------------------
+// CRM / LEAD MANAGEMENT
+// -----------------------------------------------------------------------------
+
+model LeadTypeDefinition {
+  id          String       @id @default(uuid()) @db.Uuid
+  companyId   String?      @db.Uuid
+  code        String       @db.VarChar(50)
+  name        String       @db.VarChar(120)
+  description String?      @db.VarChar(500)
+  isSystem    Boolean      @default(false)
+  sortOrder   Int          @default(0)
+  status      EntityStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(3)
+  createdBy   String?      @db.Uuid
+  updatedBy   String?      @db.Uuid
+  deletedAt   DateTime?    @db.Timestamptz(3)
+
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  leads   Lead[]
+
+  @@unique([id, companyId])
+  @@index([companyId, code, deletedAt])
+  @@map("lead_type_definitions")
+}
+
+model LeadSourceDefinition {
+  id          String       @id @default(uuid()) @db.Uuid
+  companyId   String?      @db.Uuid
+  code        String       @db.VarChar(50)
+  name        String       @db.VarChar(120)
+  description String?      @db.VarChar(500)
+  isSystem    Boolean      @default(false)
+  sortOrder   Int          @default(0)
+  status      EntityStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(3)
+  createdBy   String?      @db.Uuid
+  updatedBy   String?      @db.Uuid
+  deletedAt   DateTime?    @db.Timestamptz(3)
+
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  leads   Lead[]
+
+  @@unique([id, companyId])
+  @@index([companyId, code, deletedAt])
+  @@map("lead_source_definitions")
+}
+
+model Lead {
+  id                  String       @id @default(uuid()) @db.Uuid
+  companyId           String       @db.Uuid
+  leadNumber          String       @db.VarChar(50)
+  name                String       @db.VarChar(255)
+  leadTypeId          String       @db.Uuid
+  leadSourceId        String       @db.Uuid
+  organizationName    String?      @db.VarChar(255)
+  contactPerson       String?      @db.VarChar(200)
+  phone               String?      @db.VarChar(32)
+  alternatePhone      String?      @db.VarChar(32)
+  email               String?      @db.VarChar(320)
+  website             String?      @db.VarChar(2048)
+  address             String?      @db.VarChar(500)
+  city                String?      @db.VarChar(120)
+  projectLocation     String?      @db.VarChar(500)
+  projectCity         String?      @db.VarChar(120)
+  projectArea         String?      @db.VarChar(160)
+  latitude            Decimal?     @db.Decimal(10, 7)
+  longitude           Decimal?     @db.Decimal(10, 7)
+  estimatedValue      Decimal?     @db.Decimal(18, 2)
+  currency            String       @db.Char(3)
+  expectedClosingDate DateTime?    @db.Date
+  assignedToId        String?      @db.Uuid
+  crmCompanyId        String?      @db.Uuid
+  crmContactId        String?      @db.Uuid
+  partyLinkStatus     LeadPartyLinkStatus @default(UNLINKED)
+  priority            LeadPriority @default(MEDIUM)
+  status              LeadStatus   @default(NEW)
+  description         String?      @db.Text
+  lastActivityAt      DateTime     @default(now()) @db.Timestamptz(3)
+  createdAt           DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime     @updatedAt @db.Timestamptz(3)
+  createdBy           String?      @db.Uuid
+  updatedBy           String?      @db.Uuid
+  deletedAt           DateTime?    @db.Timestamptz(3)
+
+  company     Company                  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  leadType    LeadTypeDefinition       @relation(fields: [leadTypeId], references: [id], onDelete: Restrict)
+  leadSource  LeadSourceDefinition     @relation(fields: [leadSourceId], references: [id], onDelete: Restrict)
+  assignedTo  CompanyMembership?       @relation("LeadAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
+  notes       LeadNote[]
+  attachments LeadAttachment[]
+  crmCompany  CrmCompany?              @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  crmContact  CrmContact?              @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
+
+  @@unique([companyId, leadNumber])
+  @@unique([id, companyId])
+  @@index([companyId, status, deletedAt, createdAt])
+  @@index([companyId, assignedToId, status, deletedAt])
+  @@index([companyId, leadTypeId, deletedAt])
+  @@index([companyId, leadSourceId, deletedAt])
+  @@index([companyId, expectedClosingDate, deletedAt])
+  @@index([companyId, name])
+  @@index([companyId, email])
+  @@index([companyId, phone])
+  @@index([companyId, crmCompanyId, deletedAt])
+  @@index([companyId, crmContactId, deletedAt])
+  @@map("leads")
+}
+
+model LeadNote {
+  id        String    @id @default(uuid()) @db.Uuid
+  companyId String    @db.Uuid
+  leadId    String    @db.Uuid
+  note      String    @db.Text
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  createdBy String?   @db.Uuid
+  updatedBy String?   @db.Uuid
+  deletedAt DateTime? @db.Timestamptz(3)
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  lead    Lead    @relation(fields: [leadId, companyId], references: [id, companyId], onDelete: Restrict)
+
+  @@index([companyId, leadId, deletedAt, createdAt])
+  @@map("lead_notes")
+}
+
+model LeadAttachment {
+  id          String    @id @default(uuid()) @db.Uuid
+  companyId   String    @db.Uuid
+  leadId      String    @db.Uuid
+  fileId      String    @db.Uuid
+  title       String?   @db.VarChar(255)
+  description String?   @db.VarChar(500)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
+  createdBy   String?   @db.Uuid
+  updatedBy   String?   @db.Uuid
+  deletedAt   DateTime? @db.Timestamptz(3)
+
+  company Company    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  lead    Lead       @relation(fields: [leadId, companyId], references: [id, companyId], onDelete: Restrict)
+  file    FileObject @relation(fields: [fileId], references: [id], onDelete: Restrict)
+
+  @@unique([leadId, fileId])
+  @@index([companyId, leadId, deletedAt, createdAt])
+  @@map("lead_attachments")
+}
+
+model CrmCompanyTypeDefinition {
+  id          String       @id @default(uuid()) @db.Uuid
+  companyId   String?      @db.Uuid
+  code        String       @db.VarChar(60)
+  name        String       @db.VarChar(120)
+  description String?      @db.VarChar(500)
+  isSystem    Boolean      @default(false)
+  sortOrder   Int          @default(0)
+  status      EntityStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(3)
+  createdBy   String?      @db.Uuid
+  updatedBy   String?      @db.Uuid
+  deletedAt   DateTime?    @db.Timestamptz(3)
+
+  company     Company?                   @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  assignments CrmCompanyTypeAssignment[]
+
+  @@unique([id, companyId])
+  @@index([companyId, code, deletedAt])
+  @@map("crm_company_type_definitions")
+}
+
+model CrmContactTypeDefinition {
+  id          String       @id @default(uuid()) @db.Uuid
+  companyId   String?      @db.Uuid
+  code        String       @db.VarChar(60)
+  name        String       @db.VarChar(120)
+  description String?      @db.VarChar(500)
+  isSystem    Boolean      @default(false)
+  sortOrder   Int          @default(0)
+  status      EntityStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(3)
+  createdBy   String?      @db.Uuid
+  updatedBy   String?      @db.Uuid
+  deletedAt   DateTime?    @db.Timestamptz(3)
+
+  company     Company?                   @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  assignments CrmContactTypeAssignment[]
+
+  @@unique([id, companyId])
+  @@index([companyId, code, deletedAt])
+  @@map("crm_contact_type_definitions")
+}
+
+model CrmCompany {
+  id                 String         @id @default(uuid()) @db.Uuid
+  companyId          String         @db.Uuid
+  name               String         @db.VarChar(255)
+  legalName          String?        @db.VarChar(255)
+  registrationNumber String?        @db.VarChar(120)
+  taxNumber          String?        @db.VarChar(120)
+  industry           String?        @db.VarChar(160)
+  website            String?        @db.VarChar(2048)
+  email              String?        @db.VarChar(320)
+  phone              String?        @db.VarChar(32)
+  alternatePhone     String?        @db.VarChar(32)
+  address            String?        @db.VarChar(500)
+  city               String?        @db.VarChar(120)
+  country            String?        @db.Char(2)
+  postalCode         String?        @db.VarChar(32)
+  description        String?        @db.Text
+  status             CrmPartyStatus @default(PROSPECT)
+  assignedToId       String?        @db.Uuid
+  mergedIntoId       String?        @db.Uuid
+  createdAt          DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime       @updatedAt @db.Timestamptz(3)
+  createdBy          String?        @db.Uuid
+  updatedBy          String?        @db.Uuid
+  deletedAt          DateTime?      @db.Timestamptz(3)
+
+  tenant          Company                     @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  assignedTo      CompanyMembership?          @relation("CrmCompanyAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
+  mergedInto      CrmCompany?                 @relation("CrmCompanyMerge", fields: [mergedIntoId, companyId], references: [id, companyId], onDelete: Restrict)
+  mergedRecords   CrmCompany[]                @relation("CrmCompanyMerge")
+  types           CrmCompanyTypeAssignment[]
+  contacts        CrmContact[]
+  primaryContacts CrmCompanyPrimaryContact[]
+  leads           Lead[]
+  notes           CrmCompanyNote[]
+  attachments     CrmCompanyAttachment[]
+
+  @@unique([id, companyId])
+  @@unique([companyId, registrationNumber])
+  @@unique([companyId, taxNumber])
+  @@index([companyId, status, deletedAt, createdAt])
+  @@index([companyId, assignedToId, status, deletedAt])
+  @@index([companyId, name])
+  @@index([companyId, legalName])
+  @@index([companyId, phone])
+  @@index([companyId, email])
+  @@map("crm_companies")
+}
+
+model CrmCompanyTypeAssignment {
+  id           String    @id @default(uuid()) @db.Uuid
+  companyId    String    @db.Uuid
+  crmCompanyId String    @db.Uuid
+  typeId       String    @db.Uuid
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+  createdBy    String?   @db.Uuid
+  updatedBy    String?   @db.Uuid
+  deletedAt    DateTime? @db.Timestamptz(3)
+
+  crmCompany CrmCompany               @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  type       CrmCompanyTypeDefinition @relation(fields: [typeId], references: [id], onDelete: Restrict)
+
+  @@unique([crmCompanyId, typeId])
+  @@index([companyId, typeId, deletedAt])
+  @@map("crm_company_type_assignments")
+}
+
+model CrmContact {
+  id             String           @id @default(uuid()) @db.Uuid
+  companyId      String           @db.Uuid
+  crmCompanyId   String?          @db.Uuid
+  firstName      String           @db.VarChar(120)
+  lastName       String?          @db.VarChar(120)
+  jobTitle       String?          @db.VarChar(160)
+  department     String?          @db.VarChar(160)
+  email          String?          @db.VarChar(320)
+  alternateEmail String?          @db.VarChar(320)
+  phone          String?          @db.VarChar(32)
+  mobile         String?          @db.VarChar(32)
+  whatsapp       String?          @db.VarChar(32)
+  website        String?          @db.VarChar(2048)
+  address        String?          @db.VarChar(500)
+  city           String?          @db.VarChar(120)
+  country        String?          @db.Char(2)
+  linkedin       String?          @db.VarChar(2048)
+  notesText      String?          @db.Text
+  status         CrmContactStatus @default(ACTIVE)
+  assignedToId   String?          @db.Uuid
+  mergedIntoId   String?          @db.Uuid
+  createdAt      DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime         @updatedAt @db.Timestamptz(3)
+  createdBy      String?          @db.Uuid
+  updatedBy      String?          @db.Uuid
+  deletedAt      DateTime?        @db.Timestamptz(3)
+
+  tenant             Company                     @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  crmCompany         CrmCompany?                 @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  assignedTo         CompanyMembership?          @relation("CrmContactAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
+  mergedInto         CrmContact?                 @relation("CrmContactMerge", fields: [mergedIntoId, companyId], references: [id, companyId], onDelete: Restrict)
+  mergedRecords      CrmContact[]                @relation("CrmContactMerge")
+  types              CrmContactTypeAssignment[]
+  primaryFor         CrmCompanyPrimaryContact[]
+  leads              Lead[]
+  notes              CrmContactNote[]
+  attachments        CrmContactAttachment[]
+
+  @@unique([id, companyId])
+  @@index([companyId, status, deletedAt, createdAt])
+  @@index([companyId, crmCompanyId, deletedAt])
+  @@index([companyId, assignedToId, status, deletedAt])
+  @@index([companyId, firstName, lastName])
+  @@index([companyId, email])
+  @@index([companyId, phone])
+  @@index([companyId, mobile])
+  @@map("crm_contacts")
+}
+
+model CrmContactTypeAssignment {
+  id           String    @id @default(uuid()) @db.Uuid
+  companyId    String    @db.Uuid
+  crmContactId String    @db.Uuid
+  typeId       String    @db.Uuid
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+  createdBy    String?   @db.Uuid
+  updatedBy    String?   @db.Uuid
+  deletedAt    DateTime? @db.Timestamptz(3)
+
+  crmContact CrmContact               @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
+  type       CrmContactTypeDefinition @relation(fields: [typeId], references: [id], onDelete: Restrict)
+
+  @@unique([crmContactId, typeId])
+  @@index([companyId, typeId, deletedAt])
+  @@map("crm_contact_type_assignments")
+}
+
+model CrmCompanyPrimaryContact {
+  id           String                   @id @default(uuid()) @db.Uuid
+  companyId    String                   @db.Uuid
+  crmCompanyId String                   @db.Uuid
+  crmContactId String                   @db.Uuid
+  purpose      CrmPrimaryContactPurpose
+  label        String?                  @db.VarChar(120)
+  createdAt    DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime                 @updatedAt @db.Timestamptz(3)
+  createdBy    String?                  @db.Uuid
+  updatedBy    String?                  @db.Uuid
+  deletedAt    DateTime?                @db.Timestamptz(3)
+
+  crmCompany CrmCompany @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  crmContact CrmContact @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
+
+  @@unique([crmCompanyId, purpose])
+  @@index([companyId, crmContactId, deletedAt])
+  @@map("crm_company_primary_contacts")
+}
+
+model CrmCompanyNote {
+  id           String    @id @default(uuid()) @db.Uuid
+  companyId    String    @db.Uuid
+  crmCompanyId String    @db.Uuid
+  note         String    @db.Text
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+  createdBy    String?   @db.Uuid
+  updatedBy    String?   @db.Uuid
+  deletedAt    DateTime? @db.Timestamptz(3)
+  tenant Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  crmCompany CrmCompany @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  @@index([companyId, crmCompanyId, deletedAt, createdAt])
+  @@map("crm_company_notes")
+}
+
+model CrmContactNote {
+  id           String    @id @default(uuid()) @db.Uuid
+  companyId    String    @db.Uuid
+  crmContactId String    @db.Uuid
+  note         String    @db.Text
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+  createdBy    String?   @db.Uuid
+  updatedBy    String?   @db.Uuid
+  deletedAt    DateTime? @db.Timestamptz(3)
+  tenant Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  crmContact CrmContact @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
+  @@index([companyId, crmContactId, deletedAt, createdAt])
+  @@map("crm_contact_notes")
+}
+
+model CrmCompanyAttachment {
+  id           String    @id @default(uuid()) @db.Uuid
+  companyId    String    @db.Uuid
+  crmCompanyId String    @db.Uuid
+  fileId       String    @db.Uuid
+  title        String?   @db.VarChar(255)
+  description  String?   @db.VarChar(500)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+  createdBy    String?   @db.Uuid
+  updatedBy    String?   @db.Uuid
+  deletedAt    DateTime? @db.Timestamptz(3)
+  tenant Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  crmCompany CrmCompany @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  file FileObject @relation(fields: [fileId], references: [id], onDelete: Restrict)
+  @@unique([crmCompanyId, fileId])
+  @@index([companyId, crmCompanyId, deletedAt, createdAt])
+  @@map("crm_company_attachments")
+}
+
+model CrmContactAttachment {
+  id           String    @id @default(uuid()) @db.Uuid
+  companyId    String    @db.Uuid
+  crmContactId String    @db.Uuid
+  fileId       String    @db.Uuid
+  title        String?   @db.VarChar(255)
+  description  String?   @db.VarChar(500)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+  createdBy    String?   @db.Uuid
+  updatedBy    String?   @db.Uuid
+  deletedAt    DateTime? @db.Timestamptz(3)
+  tenant Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  crmContact CrmContact @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
+  file FileObject @relation(fields: [fileId], references: [id], onDelete: Restrict)
+  @@unique([crmContactId, fileId])
+  @@index([companyId, crmContactId, deletedAt, createdAt])
+  @@map("crm_contact_attachments")
 }
 
 // -----------------------------------------------------------------------------
@@ -957,9 +1604,9 @@ model ProjectTypeDefinition {
   updatedBy   String?      @db.Uuid
   deletedAt   DateTime?    @db.Timestamptz(3)
 
-  company         Company?  @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  projects        Project[]
-  constructionOf  Project[] @relation("ConstructionType")
+  company        Company?  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  projects       Project[]
+  constructionOf Project[] @relation("ConstructionType")
 
   @@unique([id, companyId])
   @@index([companyId, code, deletedAt])
@@ -1012,24 +1659,37 @@ model Project {
   updatedBy              String?                @db.Uuid
   deletedAt              DateTime?              @db.Timestamptz(3)
 
-  company          Company                 @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  projectType      ProjectTypeDefinition   @relation(fields: [projectTypeId], references: [id], onDelete: Restrict)
-  constructionType ProjectTypeDefinition?  @relation("ConstructionType", fields: [constructionTypeId], references: [id], onDelete: Restrict)
-  status           ProjectStatusDefinition @relation(fields: [statusId], references: [id], onDelete: Restrict)
-  projectManager   CompanyMembership       @relation("ProjectManager", fields: [projectManagerId, companyId], references: [id, companyId], onDelete: Restrict)
-  siteEngineer     CompanyMembership?      @relation("ProjectSiteEngineer", fields: [siteEngineerId, companyId], references: [id, companyId], onDelete: Restrict)
-  branch           Branch?                 @relation(fields: [branchId, companyId], references: [id, companyId], onDelete: Restrict)
-  department       Department?             @relation(fields: [departmentId, companyId], references: [id, companyId], onDelete: Restrict)
-  settings         ProjectSettings?
-  phases           ProjectPhase[]
-  milestones       ProjectMilestone[]
-  teamMembers      ProjectTeamMember[]
-  documents        ProjectDocument[]
-  calendarEvents   ProjectCalendarEvent[]
-  tagAssignments   ProjectTagAssignment[]
-  wbsNodes         ProjectWbs[]
-  planningBaselines ProjectBaseline[]
-  employeeAssignments EmployeeProjectAssignment[]
+  company                   Company                     @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  projectType               ProjectTypeDefinition       @relation(fields: [projectTypeId], references: [id], onDelete: Restrict)
+  constructionType          ProjectTypeDefinition?      @relation("ConstructionType", fields: [constructionTypeId], references: [id], onDelete: Restrict)
+  status                    ProjectStatusDefinition     @relation(fields: [statusId], references: [id], onDelete: Restrict)
+  projectManager            CompanyMembership           @relation("ProjectManager", fields: [projectManagerId, companyId], references: [id, companyId], onDelete: Restrict)
+  siteEngineer              CompanyMembership?          @relation("ProjectSiteEngineer", fields: [siteEngineerId, companyId], references: [id, companyId], onDelete: Restrict)
+  branch                    Branch?                     @relation(fields: [branchId, companyId], references: [id, companyId], onDelete: Restrict)
+  department                Department?                 @relation(fields: [departmentId, companyId], references: [id, companyId], onDelete: Restrict)
+  settings                  ProjectSettings?
+  phases                    ProjectPhase[]
+  milestones                ProjectMilestone[]
+  teamMembers               ProjectTeamMember[]
+  documents                 ProjectDocument[]
+  calendarEvents            ProjectCalendarEvent[]
+  tagAssignments            ProjectTagAssignment[]
+  wbsNodes                  ProjectWbs[]
+  planningBaselines         ProjectBaseline[]
+  employeeAssignments       EmployeeProjectAssignment[]
+  qualityPlans              QualityPlan[]
+  qualityItps               QualityItp[]
+  qualityInspections        QualityInspection[]
+  qualityChecklistTemplates QualityChecklistTemplate[]
+  qualityTestDefinitions    QualityTestDefinition[]
+  qualityTestResults        QualityTestResult[]
+  qualityNcrs               QualityNcr[]
+  qualityActions            QualityCorrectiveAction[]
+  qualityIssues             QualityIssue[]
+  qualityReworks            QualityRework[]
+  qualityOutboxEvents       QualityOutboxEvent[]
+  qualitySubmittals         QualitySubmittal[]
+  qualitySamples            QualitySample[]
 
   @@unique([id, companyId])
   @@index([companyId, lifecycleStatus, deletedAt])
@@ -1088,7 +1748,7 @@ model ProjectPhase {
   updatedBy            String?     @db.Uuid
   deletedAt            DateTime?   @db.Timestamptz(3)
 
-  project    Project           @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  project    Project            @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
   tasks      ProjectTask[]
   milestones ProjectMilestone[]
   documents  ProjectDocument[]
@@ -1100,57 +1760,64 @@ model ProjectPhase {
 }
 
 model ProjectTask {
-  id                   String     @id @default(uuid()) @db.Uuid
-  companyId            String     @db.Uuid
-  projectId            String     @db.Uuid
-  phaseId              String     @db.Uuid
-  wbsId                String?    @db.Uuid
-  parentTaskId         String?    @db.Uuid
-  activityCode         String?    @db.VarChar(50)
-  activityType         ActivityType @default(TASK)
-  name                 String     @db.VarChar(200)
-  description          String?    @db.VarChar(2000)
-  assigneeMembershipId String?    @db.Uuid
-  plannedStartDate     DateTime?  @db.Date
-  plannedEndDate       DateTime?  @db.Date
-  durationDays         Int        @default(1)
-  remainingDurationDays Int?
-  actualStartDate      DateTime?  @db.Date
-  actualEndDate        DateTime?  @db.Date
-  completionPercentage Decimal    @default(0) @db.Decimal(5, 2)
-  plannedQuantity      Decimal?   @db.Decimal(18, 4)
-  actualQuantity       Decimal?   @db.Decimal(18, 4)
-  unit                 String?    @db.VarChar(32)
-  supervisorMembershipId String?  @db.Uuid
-  priority             ProjectPriority @default(MEDIUM)
-  notes                String?    @db.Text
-  isManuallyScheduled  Boolean    @default(false)
-  isCritical           Boolean    @default(false)
-  earlyStartDate       DateTime?  @db.Date
-  earlyFinishDate      DateTime?  @db.Date
-  lateStartDate        DateTime?  @db.Date
-  lateFinishDate       DateTime?  @db.Date
-  totalFloatDays       Int?
-  freeFloatDays        Int?
-  status               TaskStatus @default(TODO)
-  sortOrder            Int        @default(0)
-  createdAt            DateTime   @default(now()) @db.Timestamptz(3)
-  updatedAt            DateTime   @updatedAt @db.Timestamptz(3)
-  createdBy            String?    @db.Uuid
-  updatedBy            String?    @db.Uuid
-  deletedAt            DateTime?  @db.Timestamptz(3)
+  id                     String          @id @default(uuid()) @db.Uuid
+  companyId              String          @db.Uuid
+  projectId              String          @db.Uuid
+  phaseId                String          @db.Uuid
+  wbsId                  String?         @db.Uuid
+  parentTaskId           String?         @db.Uuid
+  activityCode           String?         @db.VarChar(50)
+  activityType           ActivityType    @default(TASK)
+  name                   String          @db.VarChar(200)
+  description            String?         @db.VarChar(2000)
+  assigneeMembershipId   String?         @db.Uuid
+  plannedStartDate       DateTime?       @db.Date
+  plannedEndDate         DateTime?       @db.Date
+  durationDays           Int             @default(1)
+  remainingDurationDays  Int?
+  actualStartDate        DateTime?       @db.Date
+  actualEndDate          DateTime?       @db.Date
+  completionPercentage   Decimal         @default(0) @db.Decimal(5, 2)
+  plannedQuantity        Decimal?        @db.Decimal(18, 4)
+  actualQuantity         Decimal?        @db.Decimal(18, 4)
+  unit                   String?         @db.VarChar(32)
+  supervisorMembershipId String?         @db.Uuid
+  priority               ProjectPriority @default(MEDIUM)
+  notes                  String?         @db.Text
+  isManuallyScheduled    Boolean         @default(false)
+  isCritical             Boolean         @default(false)
+  earlyStartDate         DateTime?       @db.Date
+  earlyFinishDate        DateTime?       @db.Date
+  lateStartDate          DateTime?       @db.Date
+  lateFinishDate         DateTime?       @db.Date
+  totalFloatDays         Int?
+  freeFloatDays          Int?
+  status                 TaskStatus      @default(TODO)
+  sortOrder              Int             @default(0)
+  createdAt              DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime        @updatedAt @db.Timestamptz(3)
+  createdBy              String?         @db.Uuid
+  updatedBy              String?         @db.Uuid
+  deletedAt              DateTime?       @db.Timestamptz(3)
 
-  phase    ProjectPhase       @relation(fields: [phaseId, companyId], references: [id, companyId], onDelete: Restrict)
-  assignee CompanyMembership? @relation("ProjectTaskAssignee", fields: [assigneeMembershipId, companyId], references: [id, companyId], onDelete: Restrict)
-  supervisor CompanyMembership? @relation("ProjectTaskSupervisor", fields: [supervisorMembershipId, companyId], references: [id, companyId], onDelete: Restrict)
-  wbs ProjectWbs? @relation(fields: [wbsId, companyId], references: [id, companyId], onDelete: Restrict)
-  parentTask ProjectTask? @relation("ProjectTaskHierarchy", fields: [parentTaskId], references: [id], onDelete: Restrict)
-  childTasks ProjectTask[] @relation("ProjectTaskHierarchy")
-  predecessors ActivityDependency[] @relation("ActivitySuccessor")
-  successors ActivityDependency[] @relation("ActivityPredecessor")
-  baselineSnapshots BaselineActivity[]
-  progressEntries ActivityProgress[]
-  scheduleMilestone ProjectMilestone?
+  phase              ProjectPhase         @relation(fields: [phaseId, companyId], references: [id, companyId], onDelete: Restrict)
+  assignee           CompanyMembership?   @relation("ProjectTaskAssignee", fields: [assigneeMembershipId, companyId], references: [id, companyId], onDelete: Restrict)
+  supervisor         CompanyMembership?   @relation("ProjectTaskSupervisor", fields: [supervisorMembershipId, companyId], references: [id, companyId], onDelete: Restrict)
+  wbs                ProjectWbs?          @relation(fields: [wbsId, companyId], references: [id, companyId], onDelete: Restrict)
+  parentTask         ProjectTask?         @relation("ProjectTaskHierarchy", fields: [parentTaskId], references: [id], onDelete: Restrict)
+  childTasks         ProjectTask[]        @relation("ProjectTaskHierarchy")
+  predecessors       ActivityDependency[] @relation("ActivitySuccessor")
+  successors         ActivityDependency[] @relation("ActivityPredecessor")
+  baselineSnapshots  BaselineActivity[]
+  progressEntries    ActivityProgress[]
+  scheduleMilestone  ProjectMilestone?
+  qualityItps        QualityItp[]
+  qualityInspections QualityInspection[]
+  qualityTestResults QualityTestResult[]
+  qualityNcrs        QualityNcr[]
+  qualityIssues      QualityIssue[]
+  qualityReworks     QualityRework[]
+  qualitySubmittals  QualitySubmittal[]
 
   @@index([companyId, projectId, phaseId, deletedAt])
   @@index([companyId, projectId, wbsId, deletedAt])
@@ -1175,11 +1842,14 @@ model ProjectWbs {
   updatedBy   String?   @db.Uuid
   deletedAt   DateTime? @db.Timestamptz(3)
 
-  project    Project       @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
-  phase      ProjectPhase? @relation(fields: [phaseId, companyId], references: [id, companyId], onDelete: Restrict)
-  parent     ProjectWbs?   @relation("WbsHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
-  children   ProjectWbs[]  @relation("WbsHierarchy")
-  activities ProjectTask[]
+  project            Project             @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  phase              ProjectPhase?       @relation(fields: [phaseId, companyId], references: [id, companyId], onDelete: Restrict)
+  parent             ProjectWbs?         @relation("WbsHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children           ProjectWbs[]        @relation("WbsHierarchy")
+  activities         ProjectTask[]
+  qualityItps        QualityItp[]
+  qualityInspections QualityInspection[]
+  qualityNcrs        QualityNcr[]
 
   @@unique([id, companyId])
   @@index([companyId, projectId, parentId, sortOrder, deletedAt])
@@ -1234,14 +1904,14 @@ model ProjectBaseline {
 }
 
 model BaselineActivity {
-  id             String   @id @default(uuid()) @db.Uuid
-  baselineId     String   @db.Uuid
-  activityId     String   @db.Uuid
-  plannedStart   DateTime? @db.Date
-  plannedFinish  DateTime? @db.Date
-  durationDays   Int
-  progress       Decimal  @default(0) @db.Decimal(5, 2)
-  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  id            String    @id @default(uuid()) @db.Uuid
+  baselineId    String    @db.Uuid
+  activityId    String    @db.Uuid
+  plannedStart  DateTime? @db.Date
+  plannedFinish DateTime? @db.Date
+  durationDays  Int
+  progress      Decimal   @default(0) @db.Decimal(5, 2)
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
 
   baseline ProjectBaseline @relation(fields: [baselineId], references: [id], onDelete: Restrict)
   activity ProjectTask     @relation(fields: [activityId], references: [id], onDelete: Restrict)
@@ -1252,17 +1922,17 @@ model BaselineActivity {
 }
 
 model ActivityProgress {
-  id             String   @id @default(uuid()) @db.Uuid
-  companyId      String   @db.Uuid
-  projectId      String   @db.Uuid
-  activityId     String   @db.Uuid
-  progressDate   DateTime @db.Date
-  percentComplete Decimal @db.Decimal(5, 2)
-  actualQuantity Decimal? @db.Decimal(18, 4)
+  id                String   @id @default(uuid()) @db.Uuid
+  companyId         String   @db.Uuid
+  projectId         String   @db.Uuid
+  activityId        String   @db.Uuid
+  progressDate      DateTime @db.Date
+  percentComplete   Decimal  @db.Decimal(5, 2)
+  actualQuantity    Decimal? @db.Decimal(18, 4)
   remainingQuantity Decimal? @db.Decimal(18, 4)
-  notes          String?  @db.VarChar(2000)
-  createdAt      DateTime @default(now()) @db.Timestamptz(3)
-  createdBy      String?  @db.Uuid
+  notes             String?  @db.VarChar(2000)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  createdBy         String?  @db.Uuid
 
   activity ProjectTask @relation(fields: [activityId], references: [id], onDelete: Restrict)
 
@@ -1318,23 +1988,23 @@ model Employee {
   updatedBy                    String?              @db.Uuid
   deletedAt                    DateTime?            @db.Timestamptz(3)
 
-  company          Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  user             User?              @relation(fields: [userId], references: [id], onDelete: Restrict)
-  membership       CompanyMembership? @relation(fields: [membershipId, companyId], references: [id, companyId], onDelete: Restrict)
-  branch           Branch?            @relation(fields: [branchId, companyId], references: [id, companyId], onDelete: Restrict)
-  department       Department?        @relation(fields: [departmentId, companyId], references: [id, companyId], onDelete: Restrict)
-  designation      Designation?       @relation(fields: [designationId, companyId], references: [id, companyId], onDelete: Restrict)
-  manager          Employee?          @relation("EmployeeManager", fields: [managerEmployeeId, companyId], references: [id, companyId], onDelete: Restrict)
-  directReports    Employee[]         @relation("EmployeeManager")
-  employmentType   EmploymentType?    @relation(fields: [employmentTypeId], references: [id], onDelete: Restrict)
-  employments      Employment[]       @relation("EmployeeEmployment")
-  managedEmploymentRecords Employment[] @relation("EmploymentManager")
-  skills           EmployeeSkill[]
-  certifications   EmployeeCertification[]
-  licenses         EmployeeLicense[]
-  documents        EmployeeDocument[]
-  projectAssignments EmployeeProjectAssignment[]
-  teamMemberships  EmployeeTeamMembership[]
+  company                  Company                     @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  user                     User?                       @relation(fields: [userId], references: [id], onDelete: Restrict)
+  membership               CompanyMembership?          @relation(fields: [membershipId, companyId], references: [id, companyId], onDelete: Restrict)
+  branch                   Branch?                     @relation(fields: [branchId, companyId], references: [id, companyId], onDelete: Restrict)
+  department               Department?                 @relation(fields: [departmentId, companyId], references: [id, companyId], onDelete: Restrict)
+  designation              Designation?                @relation(fields: [designationId, companyId], references: [id, companyId], onDelete: Restrict)
+  manager                  Employee?                   @relation("EmployeeManager", fields: [managerEmployeeId, companyId], references: [id, companyId], onDelete: Restrict)
+  directReports            Employee[]                  @relation("EmployeeManager")
+  employmentType           EmploymentType?             @relation(fields: [employmentTypeId], references: [id], onDelete: Restrict)
+  employments              Employment[]                @relation("EmployeeEmployment")
+  managedEmploymentRecords Employment[]                @relation("EmploymentManager")
+  skills                   EmployeeSkill[]
+  certifications           EmployeeCertification[]
+  licenses                 EmployeeLicense[]
+  documents                EmployeeDocument[]
+  projectAssignments       EmployeeProjectAssignment[]
+  teamMemberships          EmployeeTeamMembership[]
 
   @@unique([id, companyId])
   @@unique([membershipId, companyId])
@@ -1362,7 +2032,7 @@ model EmploymentType {
   updatedBy   String?      @db.Uuid
   deletedAt   DateTime?    @db.Timestamptz(3)
 
-  company     Company?    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  company     Company?     @relation(fields: [companyId], references: [id], onDelete: Restrict)
   employees   Employee[]
   employments Employment[]
 
@@ -1415,7 +2085,7 @@ model WorkforceSkill {
   updatedBy   String?      @db.Uuid
   deletedAt   DateTime?    @db.Timestamptz(3)
 
-  company   Company?       @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  company   Company?        @relation(fields: [companyId], references: [id], onDelete: Restrict)
   employees EmployeeSkill[]
 
   @@index([companyId, code, deletedAt])
@@ -1517,21 +2187,21 @@ model EmployeeDocument {
 }
 
 model EmployeeProjectAssignment {
-  id             String          @id @default(uuid()) @db.Uuid
-  companyId      String          @db.Uuid
-  employeeId     String          @db.Uuid
-  projectId      String          @db.Uuid
-  role           ProjectTeamRole
-  assignedAt     DateTime        @db.Date
-  unassignedAt   DateTime?       @db.Date
-  allocationPct  Decimal         @default(100) @db.Decimal(5, 2)
-  workingHours   Decimal?        @db.Decimal(6, 2)
-  status         EntityStatus    @default(ACTIVE)
-  createdAt      DateTime        @default(now()) @db.Timestamptz(3)
-  updatedAt      DateTime        @updatedAt @db.Timestamptz(3)
-  createdBy      String?         @db.Uuid
-  updatedBy      String?         @db.Uuid
-  deletedAt      DateTime?       @db.Timestamptz(3)
+  id            String          @id @default(uuid()) @db.Uuid
+  companyId     String          @db.Uuid
+  employeeId    String          @db.Uuid
+  projectId     String          @db.Uuid
+  role          ProjectTeamRole
+  assignedAt    DateTime        @db.Date
+  unassignedAt  DateTime?       @db.Date
+  allocationPct Decimal         @default(100) @db.Decimal(5, 2)
+  workingHours  Decimal?        @db.Decimal(6, 2)
+  status        EntityStatus    @default(ACTIVE)
+  createdAt     DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime        @updatedAt @db.Timestamptz(3)
+  createdBy     String?         @db.Uuid
+  updatedBy     String?         @db.Uuid
+  deletedAt     DateTime?       @db.Timestamptz(3)
 
   employee Employee @relation(fields: [employeeId, companyId], references: [id, companyId], onDelete: Restrict)
   project  Project  @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
@@ -1601,12 +2271,12 @@ model ProjectMilestone {
   updatedBy            String?         @db.Uuid
   deletedAt            DateTime?       @db.Timestamptz(3)
 
-  project          Project @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
-  phase            ProjectPhase? @relation(fields: [phaseId, companyId], references: [id, companyId], onDelete: Restrict)
-  activity         ProjectTask? @relation(fields: [activityId], references: [id], onDelete: Restrict)
-  dependsOn        ProjectMilestoneDependency[] @relation("MilestoneDependent")
-  dependencyOf     ProjectMilestoneDependency[] @relation("MilestonePrerequisite")
-  calendarEvents   ProjectCalendarEvent[]
+  project        Project                      @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  phase          ProjectPhase?                @relation(fields: [phaseId, companyId], references: [id, companyId], onDelete: Restrict)
+  activity       ProjectTask?                 @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  dependsOn      ProjectMilestoneDependency[] @relation("MilestoneDependent")
+  dependencyOf   ProjectMilestoneDependency[] @relation("MilestonePrerequisite")
+  calendarEvents ProjectCalendarEvent[]
 
   @@unique([id, companyId])
   @@index([companyId, projectId, targetDate, deletedAt])
@@ -1674,9 +2344,10 @@ model ProjectDocument {
   updatedBy    String?                 @db.Uuid
   deletedAt    DateTime?               @db.Timestamptz(3)
 
-  project    Project      @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
-  phase      ProjectPhase? @relation(fields: [phaseId, companyId], references: [id, companyId], onDelete: Restrict)
-  fileObject FileObject?  @relation(fields: [fileObjectId], references: [id], onDelete: Restrict)
+  project         Project           @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  phase           ProjectPhase?     @relation(fields: [phaseId, companyId], references: [id, companyId], onDelete: Restrict)
+  fileObject      FileObject?       @relation(fields: [fileObjectId], references: [id], onDelete: Restrict)
+  qualityEvidence QualityEvidence[]
 
   @@index([companyId, projectId, category, deletedAt])
   @@map("project_documents")
@@ -1709,20 +2380,20 @@ model ProjectCalendarEvent {
 }
 
 model ProjectTag {
-  id          String       @id @default(uuid()) @db.Uuid
-  companyId   String       @db.Uuid
-  code        String       @db.VarChar(50)
-  name        String       @db.VarChar(120)
-  color       String?      @db.VarChar(9)
-  status      EntityStatus @default(ACTIVE)
-  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime     @updatedAt @db.Timestamptz(3)
-  createdBy   String?      @db.Uuid
-  updatedBy   String?      @db.Uuid
-  deletedAt   DateTime?    @db.Timestamptz(3)
+  id        String       @id @default(uuid()) @db.Uuid
+  companyId String       @db.Uuid
+  code      String       @db.VarChar(50)
+  name      String       @db.VarChar(120)
+  color     String?      @db.VarChar(9)
+  status    EntityStatus @default(ACTIVE)
+  createdAt DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime     @updatedAt @db.Timestamptz(3)
+  createdBy String?      @db.Uuid
+  updatedBy String?      @db.Uuid
+  deletedAt DateTime?    @db.Timestamptz(3)
 
-  company      Company               @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  assignments  ProjectTagAssignment[]
+  company     Company                @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  assignments ProjectTagAssignment[]
 
   @@unique([id, companyId])
   @@index([companyId, code, deletedAt])
@@ -1745,4 +2416,560 @@ model ProjectTagAssignment {
 
   @@index([companyId, projectId, deletedAt])
   @@map("project_tag_assignments")
+}
+
+// QA/QC — Quality Assurance & Quality Control
+model QualityStandard {
+  id          String    @id @default(uuid()) @db.Uuid
+  companyId   String    @db.Uuid
+  code        String    @db.VarChar(50)
+  name        String    @db.VarChar(200)
+  issuingBody String?   @db.VarChar(160)
+  edition     String?   @db.VarChar(80)
+  description String?   @db.Text
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
+  createdBy   String?   @db.Uuid
+  updatedBy   String?   @db.Uuid
+  deletedAt   DateTime? @db.Timestamptz(3)
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@unique([companyId, code])
+  @@index([companyId, active, deletedAt])
+  @@map("quality_standards")
+}
+
+model QualityPlan {
+  id                   String            @id @default(uuid()) @db.Uuid
+  companyId            String            @db.Uuid
+  projectId            String            @db.Uuid
+  planNumber           String            @db.VarChar(80)
+  version              Int               @default(1)
+  projectManagerId     String?           @db.Uuid
+  qualityManagerId     String?           @db.Uuid
+  applicableStandards  Json              @default("[]")
+  qualityObjectives    String            @db.Text
+  inspectionStrategy   String            @db.Text
+  testingRequirements  String?           @db.Text
+  approvalRequirements String?           @db.Text
+  criticalActivities   Json              @default("[]")
+  criticalMaterials    Json              @default("[]")
+  requiredRecords      Json              @default("[]")
+  status               QualityPlanStatus @default(DRAFT)
+  effectiveDate        DateTime?         @db.Date
+  approvedBy           String?           @db.Uuid
+  approvedAt           DateTime?         @db.Timestamptz(3)
+  createdAt            DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt            DateTime          @updatedAt @db.Timestamptz(3)
+  createdBy            String?           @db.Uuid
+  updatedBy            String?           @db.Uuid
+  deletedAt            DateTime?         @db.Timestamptz(3)
+  company              Company           @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project              Project           @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+
+  @@unique([projectId, planNumber, version])
+  @@index([companyId, projectId, status, deletedAt])
+  @@map("quality_plans")
+}
+
+model QualityItp {
+  id                 String                @id @default(uuid()) @db.Uuid
+  companyId          String                @db.Uuid
+  projectId          String                @db.Uuid
+  itpNumber          String                @db.VarChar(80)
+  version            Int                   @default(1)
+  wbsId              String?               @db.Uuid
+  activityId         String?               @db.Uuid
+  boqItemId          String?               @db.Uuid
+  specification      String?               @db.VarChar(500)
+  inspectionStage    String                @db.VarChar(160)
+  inspectionType     QualityInspectionType
+  acceptanceCriteria String                @db.Text
+  responsibleParty   String                @db.VarChar(200)
+  requiredDocuments  Json                  @default("[]")
+  requiredTests      Json                  @default("[]")
+  controlPoint       QualityControlPoint   @default(NONE)
+  status             QualityItpStatus      @default(DRAFT)
+  createdAt          DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime              @updatedAt @db.Timestamptz(3)
+  createdBy          String?               @db.Uuid
+  updatedBy          String?               @db.Uuid
+  deletedAt          DateTime?             @db.Timestamptz(3)
+  company            Company               @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project            Project               @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  wbs                ProjectWbs?           @relation(fields: [wbsId], references: [id], onDelete: Restrict)
+  activity           ProjectTask?          @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  inspections        QualityInspection[]
+
+  @@unique([projectId, itpNumber, version])
+  @@index([companyId, projectId, status, controlPoint, deletedAt])
+  @@index([activityId, status, controlPoint])
+  @@map("quality_itps")
+}
+
+model QualityChecklistTemplate {
+  id            String                     @id @default(uuid()) @db.Uuid
+  companyId     String                     @db.Uuid
+  projectId     String?                    @db.Uuid
+  name          String                     @db.VarChar(200)
+  category      String                     @db.VarChar(120)
+  activityTrade String?                    @db.VarChar(120)
+  standard      String?                    @db.VarChar(200)
+  version       Int                        @default(1)
+  active        Boolean                    @default(true)
+  createdAt     DateTime                   @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime                   @updatedAt @db.Timestamptz(3)
+  createdBy     String?                    @db.Uuid
+  updatedBy     String?                    @db.Uuid
+  deletedAt     DateTime?                  @db.Timestamptz(3)
+  company       Company                    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project       Project?                   @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  questions     QualityChecklistQuestion[]
+  inspections   QualityInspection[]
+
+  @@unique([companyId, projectId, name, version])
+  @@index([companyId, category, active, deletedAt])
+  @@map("quality_checklist_templates")
+}
+
+model QualityChecklistQuestion {
+  id                 String                      @id @default(uuid()) @db.Uuid
+  templateId         String                      @db.Uuid
+  prompt             String                      @db.VarChar(1000)
+  answerType         QualityAnswerType
+  acceptanceCriteria String?                     @db.VarChar(1000)
+  required           Boolean                     @default(true)
+  requiredEvidence   Boolean                     @default(false)
+  requiredSignature  Boolean                     @default(false)
+  options            Json                        @default("[]")
+  minValue           Decimal?                    @db.Decimal(18, 4)
+  maxValue           Decimal?                    @db.Decimal(18, 4)
+  unit               String?                     @db.VarChar(40)
+  sortOrder          Int                         @default(0)
+  template           QualityChecklistTemplate    @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  responses          QualityInspectionResponse[]
+
+  @@index([templateId, sortOrder])
+  @@map("quality_checklist_questions")
+}
+
+model QualityInspection {
+  id                  String                      @id @default(uuid()) @db.Uuid
+  companyId           String                      @db.Uuid
+  projectId           String                      @db.Uuid
+  inspectionNumber    String                      @db.VarChar(80)
+  itpId               String?                     @db.Uuid
+  checklistTemplateId String?                     @db.Uuid
+  siteReference       String?                     @db.VarChar(200)
+  areaReference       String?                     @db.VarChar(200)
+  wbsId               String?                     @db.Uuid
+  activityId          String?                     @db.Uuid
+  boqItemId           String?                     @db.Uuid
+  drawingReference    String?                     @db.VarChar(200)
+  drawingRevision     String?                     @db.VarChar(50)
+  specification       String?                     @db.VarChar(500)
+  requestedBy         String                      @db.Uuid
+  requestedDate       DateTime                    @db.Date
+  scheduledAt         DateTime?                   @db.Timestamptz(3)
+  inspectorId         String?                     @db.Uuid
+  consultant          String?                     @db.VarChar(200)
+  client              String?                     @db.VarChar(200)
+  inspectionType      QualityInspectionType
+  controlPoint        QualityControlPoint         @default(NONE)
+  status              QualityInspectionStatus     @default(DRAFT)
+  description         String                      @db.Text
+  outcomeComments     String?                     @db.Text
+  completedAt         DateTime?                   @db.Timestamptz(3)
+  closedAt            DateTime?                   @db.Timestamptz(3)
+  clientMutationId    String?                     @db.VarChar(120)
+  syncVersion         Int                         @default(1)
+  createdAt           DateTime                    @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime                    @updatedAt @db.Timestamptz(3)
+  createdBy           String?                     @db.Uuid
+  updatedBy           String?                     @db.Uuid
+  deletedAt           DateTime?                   @db.Timestamptz(3)
+  company             Company                     @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project             Project                     @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  itp                 QualityItp?                 @relation(fields: [itpId], references: [id], onDelete: Restrict)
+  checklistTemplate   QualityChecklistTemplate?   @relation(fields: [checklistTemplateId], references: [id], onDelete: Restrict)
+  wbs                 ProjectWbs?                 @relation(fields: [wbsId], references: [id], onDelete: Restrict)
+  activity            ProjectTask?                @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  responses           QualityInspectionResponse[]
+  ncrs                QualityNcr[]
+  evidence            QualityEvidence[]
+
+  @@unique([projectId, inspectionNumber])
+  @@unique([companyId, clientMutationId])
+  @@index([companyId, projectId, status, scheduledAt, deletedAt])
+  @@index([activityId, controlPoint, status])
+  @@map("quality_inspections")
+}
+
+model QualityInspectionResponse {
+  id           String                   @id @default(uuid()) @db.Uuid
+  inspectionId String                   @db.Uuid
+  questionId   String                   @db.Uuid
+  answer       Json
+  compliant    Boolean?
+  comments     String?                  @db.VarChar(2000)
+  answeredBy   String?                  @db.Uuid
+  answeredAt   DateTime?                @db.Timestamptz(3)
+  inspection   QualityInspection        @relation(fields: [inspectionId], references: [id], onDelete: Restrict)
+  question     QualityChecklistQuestion @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([inspectionId, questionId])
+  @@index([inspectionId, compliant])
+  @@map("quality_inspection_responses")
+}
+
+model QualityTestDefinition {
+  id                 String              @id @default(uuid()) @db.Uuid
+  companyId          String              @db.Uuid
+  projectId          String?             @db.Uuid
+  code               String              @db.VarChar(50)
+  name               String              @db.VarChar(200)
+  standard           String?             @db.VarChar(200)
+  parameter          String              @db.VarChar(160)
+  unit               String?             @db.VarChar(40)
+  minValue           Decimal?            @db.Decimal(18, 4)
+  maxValue           Decimal?            @db.Decimal(18, 4)
+  acceptanceCriteria String              @db.VarChar(1000)
+  samplingFrequency  String?             @db.VarChar(200)
+  requiredEquipment  Json                @default("[]")
+  requiredLaboratory String?             @db.VarChar(200)
+  active             Boolean             @default(true)
+  createdAt          DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime            @updatedAt @db.Timestamptz(3)
+  createdBy          String?             @db.Uuid
+  updatedBy          String?             @db.Uuid
+  deletedAt          DateTime?           @db.Timestamptz(3)
+  company            Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project            Project?            @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  results            QualityTestResult[]
+
+  @@unique([companyId, projectId, code])
+  @@index([companyId, projectId, active, deletedAt])
+  @@map("quality_test_definitions")
+}
+
+model QualityTestResult {
+  id                String                @id @default(uuid()) @db.Uuid
+  companyId         String                @db.Uuid
+  projectId         String                @db.Uuid
+  testNumber        String                @db.VarChar(80)
+  definitionId      String                @db.Uuid
+  activityId        String?               @db.Uuid
+  siteReference     String?               @db.VarChar(200)
+  areaReference     String?               @db.VarChar(200)
+  materialReference String?               @db.VarChar(200)
+  batchReference    String?               @db.VarChar(120)
+  sampleReference   String?               @db.VarChar(120)
+  testDate          DateTime              @db.Date
+  laboratory        String?               @db.VarChar(200)
+  technician        String?               @db.VarChar(200)
+  numericResult     Decimal?              @db.Decimal(18, 4)
+  textResult        String?               @db.VarChar(1000)
+  resultStatus      QualityResultStatus   @default(PENDING)
+  calculatedStatus  QualityResultStatus   @default(PENDING)
+  overrideReason    String?               @db.VarChar(1000)
+  overriddenBy      String?               @db.Uuid
+  overriddenAt      DateTime?             @db.Timestamptz(3)
+  remarks           String?               @db.Text
+  createdAt         DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime              @updatedAt @db.Timestamptz(3)
+  createdBy         String?               @db.Uuid
+  updatedBy         String?               @db.Uuid
+  deletedAt         DateTime?             @db.Timestamptz(3)
+  company           Company               @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project           Project               @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  definition        QualityTestDefinition @relation(fields: [definitionId], references: [id], onDelete: Restrict)
+  activity          ProjectTask?          @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  ncrs              QualityNcr[]
+  evidence          QualityEvidence[]
+
+  @@unique([projectId, testNumber])
+  @@index([companyId, projectId, resultStatus, testDate, deletedAt])
+  @@map("quality_test_results")
+}
+
+model QualityNcr {
+  id               String                    @id @default(uuid()) @db.Uuid
+  companyId        String                    @db.Uuid
+  projectId        String                    @db.Uuid
+  ncrNumber        String                    @db.VarChar(80)
+  inspectionId     String?                   @db.Uuid
+  testResultId     String?                   @db.Uuid
+  siteReference    String?                   @db.VarChar(200)
+  areaReference    String?                   @db.VarChar(200)
+  wbsId            String?                   @db.Uuid
+  activityId       String?                   @db.Uuid
+  boqItemId        String?                   @db.Uuid
+  drawingReference String?                   @db.VarChar(200)
+  specification    String?                   @db.VarChar(500)
+  responsibleParty String?                   @db.VarChar(200)
+  source           String                    @db.VarChar(80)
+  description      String                    @db.Text
+  severity         QualityNcrSeverity
+  status           QualityNcrStatus          @default(CREATED)
+  reportedDate     DateTime                  @db.Date
+  reportedBy       String                    @db.Uuid
+  assignedTo       String?                   @db.Uuid
+  rootCauseMethod  String?                   @db.VarChar(80)
+  rootCause        String?                   @db.Text
+  immediateAction  String?                   @db.Text
+  correctiveAction String?                   @db.Text
+  preventiveAction String?                   @db.Text
+  dueDate          DateTime?                 @db.Date
+  verifiedBy       String?                   @db.Uuid
+  verifiedAt       DateTime?                 @db.Timestamptz(3)
+  closedBy         String?                   @db.Uuid
+  closedAt         DateTime?                 @db.Timestamptz(3)
+  createdAt        DateTime                  @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime                  @updatedAt @db.Timestamptz(3)
+  createdBy        String?                   @db.Uuid
+  updatedBy        String?                   @db.Uuid
+  deletedAt        DateTime?                 @db.Timestamptz(3)
+  company          Company                   @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project          Project                   @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  inspection       QualityInspection?        @relation(fields: [inspectionId], references: [id], onDelete: Restrict)
+  testResult       QualityTestResult?        @relation(fields: [testResultId], references: [id], onDelete: Restrict)
+  wbs              ProjectWbs?               @relation(fields: [wbsId], references: [id], onDelete: Restrict)
+  activity         ProjectTask?              @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  actions          QualityCorrectiveAction[]
+  evidence         QualityEvidence[]
+
+  @@unique([projectId, ncrNumber])
+  @@index([companyId, projectId, status, severity, dueDate, deletedAt])
+  @@map("quality_ncrs")
+}
+
+model QualityCorrectiveAction {
+  id                  String              @id @default(uuid()) @db.Uuid
+  companyId           String              @db.Uuid
+  projectId           String              @db.Uuid
+  ncrId               String              @db.Uuid
+  actionNumber        String              @db.VarChar(80)
+  actionType          String              @default("CORRECTIVE") @db.VarChar(30)
+  responsiblePersonId String?             @db.Uuid
+  responsibleCompany  String?             @db.VarChar(200)
+  action              String              @db.Text
+  dueDate             DateTime            @db.Date
+  completedDate       DateTime?           @db.Date
+  verification        String?             @db.Text
+  effectiveness       String?             @db.Text
+  status              QualityActionStatus @default(OPEN)
+  verifiedBy          String?             @db.Uuid
+  verifiedAt          DateTime?           @db.Timestamptz(3)
+  createdAt           DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime            @updatedAt @db.Timestamptz(3)
+  createdBy           String?             @db.Uuid
+  updatedBy           String?             @db.Uuid
+  deletedAt           DateTime?           @db.Timestamptz(3)
+  company             Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project             Project             @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  ncr                 QualityNcr          @relation(fields: [ncrId], references: [id], onDelete: Restrict)
+  evidence            QualityEvidence[]
+
+  @@unique([projectId, actionNumber])
+  @@index([companyId, projectId, status, dueDate, deletedAt])
+  @@map("quality_corrective_actions")
+}
+
+model QualityIssue {
+  id            String             @id @default(uuid()) @db.Uuid
+  companyId     String             @db.Uuid
+  projectId     String             @db.Uuid
+  issueNumber   String             @db.VarChar(80)
+  type          QualityIssueType
+  siteReference String?            @db.VarChar(200)
+  areaReference String?            @db.VarChar(200)
+  location      String?            @db.VarChar(300)
+  activityId    String?            @db.Uuid
+  trade         String?            @db.VarChar(120)
+  description   String             @db.Text
+  severity      QualityNcrSeverity @default(MINOR)
+  priority      ProjectPriority    @default(MEDIUM)
+  reportedBy    String             @db.Uuid
+  assignedTo    String?            @db.Uuid
+  reportedDate  DateTime           @db.Date
+  dueDate       DateTime?          @db.Date
+  status        QualityIssueStatus @default(OPEN)
+  resolution    String?            @db.Text
+  verification  String?            @db.Text
+  createdAt     DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime           @updatedAt @db.Timestamptz(3)
+  createdBy     String?            @db.Uuid
+  updatedBy     String?            @db.Uuid
+  deletedAt     DateTime?          @db.Timestamptz(3)
+  company       Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project       Project            @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  activity      ProjectTask?       @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  evidence      QualityEvidence[]
+
+  @@unique([projectId, issueNumber])
+  @@index([companyId, projectId, type, status, dueDate, deletedAt])
+  @@map("quality_issues")
+}
+
+model QualityRework {
+  id                String       @id @default(uuid()) @db.Uuid
+  companyId         String       @db.Uuid
+  projectId         String       @db.Uuid
+  reworkNumber      String       @db.VarChar(80)
+  activityId        String?      @db.Uuid
+  areaReference     String?      @db.VarChar(200)
+  cause             String       @db.Text
+  responsibleParty  String?      @db.VarChar(200)
+  originalQuantity  Decimal?     @db.Decimal(18, 4)
+  reworkQuantity    Decimal?     @db.Decimal(18, 4)
+  unit              String?      @db.VarChar(40)
+  laborCost         Decimal      @default(0) @db.Decimal(18, 2)
+  materialCost      Decimal      @default(0) @db.Decimal(18, 2)
+  equipmentCost     Decimal      @default(0) @db.Decimal(18, 2)
+  subcontractorCost Decimal      @default(0) @db.Decimal(18, 2)
+  totalCost         Decimal      @default(0) @db.Decimal(18, 2)
+  startDate         DateTime?    @db.Date
+  completionDate    DateTime?    @db.Date
+  status            String       @default("OPEN") @db.VarChar(40)
+  createdAt         DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime     @updatedAt @db.Timestamptz(3)
+  createdBy         String?      @db.Uuid
+  updatedBy         String?      @db.Uuid
+  deletedAt         DateTime?    @db.Timestamptz(3)
+  company           Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project           Project      @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  activity          ProjectTask? @relation(fields: [activityId], references: [id], onDelete: Restrict)
+
+  @@unique([projectId, reworkNumber])
+  @@index([companyId, projectId, status, deletedAt])
+  @@map("quality_reworks")
+}
+
+model QualityEvidence {
+  id             String                   @id @default(uuid()) @db.Uuid
+  documentId     String                   @db.Uuid
+  inspectionId   String?                  @db.Uuid
+  testResultId   String?                  @db.Uuid
+  ncrId          String?                  @db.Uuid
+  actionId       String?                  @db.Uuid
+  issueId        String?                  @db.Uuid
+  submittalId    String?                  @db.Uuid
+  evidenceType   String                   @db.VarChar(40)
+  latitude       Decimal?                 @db.Decimal(10, 7)
+  longitude      Decimal?                 @db.Decimal(10, 7)
+  capturedAt     DateTime?                @db.Timestamptz(3)
+  annotationData Json?
+  createdAt      DateTime                 @default(now()) @db.Timestamptz(3)
+  createdBy      String?                  @db.Uuid
+  document       ProjectDocument          @relation(fields: [documentId], references: [id], onDelete: Restrict)
+  inspection     QualityInspection?       @relation(fields: [inspectionId], references: [id], onDelete: Restrict)
+  testResult     QualityTestResult?       @relation(fields: [testResultId], references: [id], onDelete: Restrict)
+  ncr            QualityNcr?              @relation(fields: [ncrId], references: [id], onDelete: Restrict)
+  action         QualityCorrectiveAction? @relation(fields: [actionId], references: [id], onDelete: Restrict)
+  issue          QualityIssue?            @relation(fields: [issueId], references: [id], onDelete: Restrict)
+  submittal      QualitySubmittal?        @relation(fields: [submittalId], references: [id], onDelete: Restrict)
+
+  @@index([documentId])
+  @@index([inspectionId])
+  @@index([testResultId])
+  @@index([ncrId])
+  @@map("quality_evidence")
+}
+
+model QualityOutboxEvent {
+  id          String    @id @default(uuid()) @db.Uuid
+  companyId   String    @db.Uuid
+  projectId   String    @db.Uuid
+  eventName   String    @db.VarChar(100)
+  entityId    String    @db.Uuid
+  actorId     String    @db.Uuid
+  payload     Json      @default("{}")
+  status      String    @default("PENDING") @db.VarChar(30)
+  attempts    Int       @default(0)
+  availableAt DateTime  @default(now()) @db.Timestamptz(3)
+  processedAt DateTime? @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project     Project   @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+
+  @@index([status, availableAt, createdAt])
+  @@index([companyId, projectId, eventName, createdAt])
+  @@map("quality_outbox_events")
+}
+
+model QualitySubmittal {
+  id                     String                 @id @default(uuid()) @db.Uuid
+  companyId              String                 @db.Uuid
+  projectId              String                 @db.Uuid
+  submittalNumber        String                 @db.VarChar(80)
+  type                   QualitySubmittalType
+  version                Int                    @default(1)
+  activityId             String?                @db.Uuid
+  title                  String                 @db.VarChar(255)
+  materialReference      String?                @db.VarChar(200)
+  vendorReference        String?                @db.VarChar(200)
+  manufacturer           String?                @db.VarChar(200)
+  brand                  String?                @db.VarChar(160)
+  specification          String?                @db.VarChar(500)
+  contractor             String?                @db.VarChar(200)
+  subcontractorReference String?                @db.VarChar(200)
+  method                 String?                @db.Text
+  sequence               String?                @db.Text
+  resources              Json                   @default("[]")
+  equipment              Json                   @default("[]")
+  materials              Json                   @default("[]")
+  safetyRequirements     String?                @db.Text
+  qualityRequirements    String?                @db.Text
+  inspectionRequirements String?                @db.Text
+  references             Json                   @default("[]")
+  status                 QualitySubmittalStatus @default(DRAFT)
+  submittedAt            DateTime?              @db.Timestamptz(3)
+  approvedBy             String?                @db.Uuid
+  approvedAt             DateTime?              @db.Timestamptz(3)
+  reviewComments         String?                @db.Text
+  createdAt              DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime               @updatedAt @db.Timestamptz(3)
+  createdBy              String?                @db.Uuid
+  updatedBy              String?                @db.Uuid
+  deletedAt              DateTime?              @db.Timestamptz(3)
+  company                Company                @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project                Project                @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+  activity               ProjectTask?           @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  evidence               QualityEvidence[]
+
+  @@unique([projectId, submittalNumber, version])
+  @@index([companyId, projectId, type, status, deletedAt])
+  @@map("quality_submittals")
+}
+
+model QualitySample {
+  id                String              @id @default(uuid()) @db.Uuid
+  companyId         String              @db.Uuid
+  projectId         String              @db.Uuid
+  sampleNumber      String              @db.VarChar(80)
+  materialReference String              @db.VarChar(200)
+  batchReference    String?             @db.VarChar(120)
+  supplierReference String?             @db.VarChar(200)
+  location          String?             @db.VarChar(300)
+  collectedDate     DateTime            @db.Date
+  collectedBy       String              @db.Uuid
+  quantity          Decimal?            @db.Decimal(18, 4)
+  unit              String?             @db.VarChar(40)
+  testRequired      String              @db.VarChar(300)
+  testStatus        QualityResultStatus @default(PENDING)
+  storageLocation   String?             @db.VarChar(200)
+  disposition       String?             @db.VarChar(500)
+  status            QualitySampleStatus @default(COLLECTED)
+  createdAt         DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime            @updatedAt @db.Timestamptz(3)
+  createdBy         String?             @db.Uuid
+  updatedBy         String?             @db.Uuid
+  deletedAt         DateTime?           @db.Timestamptz(3)
+  company           Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project           Project             @relation(fields: [projectId, companyId], references: [id, companyId], onDelete: Restrict)
+
+  @@unique([projectId, sampleNumber])
+  @@index([companyId, projectId, status, testStatus, deletedAt])
+  @@map("quality_samples")
 }

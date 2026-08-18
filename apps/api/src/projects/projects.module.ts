@@ -15,9 +15,10 @@ import { ProjectTeamController } from './presentation/project-team.controller';
 import { ProjectsController } from './presentation/projects.controller';
 import { PlanningController } from './planning/planning.controller';
 import { PlanningService } from './planning/planning.service';
+import { QualityModule } from '../quality/quality.module';
 
 @Module({
-  imports: [AuditModule, CompaniesModule],
+  imports: [AuditModule, CompaniesModule, QualityModule],
   controllers: [
     ProjectsController,
     ProjectPhasesController,

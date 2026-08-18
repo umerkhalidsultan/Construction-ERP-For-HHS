@@ -6,13 +6,22 @@ export interface ApiPagination {
 }
 
 export interface ApiResponse<T> {
-  status: 'success' | 'error';
+  status: "success" | "error";
+  success?: boolean;
+  code?: string;
   message: string;
   data: T;
+  fields?: Record<string, string>;
   pagination?: ApiPagination;
   timestamp: string;
   requestId: string;
   errors?: string[];
+  error?: {
+    code: string;
+    message: string;
+    fields?: Record<string, string>;
+    requestId: string;
+  };
 }
 
 export interface AuthUser {
@@ -44,15 +53,10 @@ export interface LoginResult {
   memberships: AuthMembership[];
 }
 
-export type CompanyStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'ARCHIVED';
+export type CompanyStatus = "ACTIVE" | "INACTIVE" | "SUSPENDED" | "ARCHIVED";
 export type SubscriptionStatus =
-  | 'TRIAL'
-  | 'ACTIVE'
-  | 'PAST_DUE'
-  | 'SUSPENDED'
-  | 'CANCELLED'
-  | 'EXPIRED';
-export type EntityStatus = 'ACTIVE' | 'INACTIVE';
+  "TRIAL" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | "CANCELLED" | "EXPIRED";
+export type EntityStatus = "ACTIVE" | "INACTIVE";
 
 export interface Company {
   id: string;
@@ -144,7 +148,7 @@ export interface CompanyBranding {
   primaryColor: string;
   secondaryColor: string;
   accentColor: string;
-  theme: 'LIGHT' | 'DARK' | 'SYSTEM';
+  theme: "LIGHT" | "DARK" | "SYSTEM";
 }
 
 export interface Branch {
@@ -365,7 +369,7 @@ export interface PlanningActivity extends ProjectTask {
   wbsId?: string | null;
   parentTaskId?: string | null;
   activityCode?: string | null;
-  activityType: 'TASK' | 'SUMMARY' | 'MILESTONE' | 'LEVEL_OF_EFFORT';
+  activityType: "TASK" | "SUMMARY" | "MILESTONE" | "LEVEL_OF_EFFORT";
   durationDays: number;
   remainingDurationDays?: number | null;
   actualStartDate?: string | null;
@@ -380,15 +384,15 @@ export interface PlanningActivity extends ProjectTask {
   totalFloatDays?: number | null;
   freeFloatDays?: number | null;
   sortOrder: number;
-  wbs?: Pick<ProjectWbs, 'id' | 'code' | 'name'> | null;
-  phase?: Pick<ProjectPhase, 'id' | 'code' | 'name'>;
-  assignee?: ProjectTeamMember['membership'] | null;
-  supervisor?: ProjectTeamMember['membership'] | null;
+  wbs?: Pick<ProjectWbs, "id" | "code" | "name"> | null;
+  phase?: Pick<ProjectPhase, "id" | "code" | "name">;
+  assignee?: ProjectTeamMember["membership"] | null;
+  supervisor?: ProjectTeamMember["membership"] | null;
   predecessors?: Array<{
     id: string;
     predecessorId: string;
     successorId: string;
-    type: 'FS' | 'SS' | 'FF' | 'SF';
+    type: "FS" | "SS" | "FF" | "SF";
     lagDays: number;
     predecessor: { id: string; activityCode?: string | null; name: string };
   }>;
@@ -404,7 +408,7 @@ export interface ActivityDependency {
   id: string;
   predecessorId: string;
   successorId: string;
-  type: 'FS' | 'SS' | 'FF' | 'SF';
+  type: "FS" | "SS" | "FF" | "SF";
   lagDays: number;
 }
 
@@ -412,7 +416,7 @@ export interface ProjectBaseline {
   id: string;
   name: string;
   revision: number;
-  status: 'DRAFT' | 'APPROVED' | 'SUPERSEDED';
+  status: "DRAFT" | "APPROVED" | "SUPERSEDED";
   description?: string | null;
   approvedAt?: string | null;
   _count?: { activities: number };
@@ -443,7 +447,11 @@ export interface PlanningDashboard {
 }
 
 export interface GanttData {
-  project: { id: string; projectStartDate: string; plannedCompletionDate: string };
+  project: {
+    id: string;
+    projectStartDate: string;
+    plannedCompletionDate: string;
+  };
   wbs: ProjectWbs[];
   activities: PlanningActivity[];
   dependencies: ActivityDependency[];
@@ -550,4 +558,158 @@ export interface ProjectDashboard {
 export interface ProjectTimeline {
   phases: ProjectPhase[];
   milestones: ProjectMilestone[];
+}
+
+export type EmployeeStatus =
+  | "ACTIVE"
+  | "PROBATION"
+  | "ON_LEAVE"
+  | "SUSPENDED"
+  | "RESIGNED"
+  | "TERMINATED"
+  | "INACTIVE";
+
+export type EmployeeAvailability =
+  "AVAILABLE" | "ASSIGNED" | "ON_LEAVE" | "TRAINING" | "SUSPENDED" | "INACTIVE";
+
+export interface WorkforceCatalogItem {
+  id: string;
+  code: string;
+  name: string;
+  description?: string | null;
+  isSystem: boolean;
+  status: EntityStatus;
+}
+
+export interface EmployeeSummary {
+  id: string;
+  employeeCode: string;
+  firstName: string;
+  middleName?: string | null;
+  lastName: string;
+  preferredName?: string | null;
+  companyEmail?: string | null;
+  personalEmail?: string | null;
+  phone?: string | null;
+  photoUrl?: string | null;
+  status: EmployeeStatus;
+  availability: EmployeeAvailability;
+  joiningDate: string;
+  updatedAt: string;
+  branch?: { id: string; code?: string; name: string } | null;
+  department?: { id: string; code?: string; name: string } | null;
+  designation?: { id: string; code?: string; name: string } | null;
+  employmentType?: WorkforceCatalogItem | null;
+  manager?: Pick<
+    EmployeeSummary,
+    "id" | "employeeCode" | "firstName" | "lastName"
+  > | null;
+  skills: Array<{
+    id: string;
+    proficiencyLevel?: number | null;
+    yearsExperience?: string | null;
+    skill: WorkforceCatalogItem;
+  }>;
+}
+
+export interface EmploymentRecord {
+  id: string;
+  effectiveFrom: string;
+  effectiveTo?: string | null;
+  status: string;
+  changeReason?: string | null;
+  employmentType: WorkforceCatalogItem;
+  branch?: Branch | null;
+  department?: Department | null;
+  designation?: Designation | null;
+}
+
+export interface EmployeeProjectAssignment {
+  id: string;
+  role: string;
+  assignedAt: string;
+  unassignedAt?: string | null;
+  allocationPct: string;
+  workingHours?: string | null;
+  status: EntityStatus;
+  project: Pick<
+    Project,
+    "id" | "projectCode" | "projectName" | "lifecycleStatus"
+  >;
+}
+
+export interface EmployeeCredential {
+  id: string;
+  name?: string;
+  licenseType?: string;
+  certificationNo?: string | null;
+  licenseNumber?: string | null;
+  issueDate?: string | null;
+  expiryDate?: string | null;
+  issuingAuthority?: string | null;
+  notes?: string | null;
+}
+
+export interface EmployeeDocument {
+  id: string;
+  documentType: string;
+  title: string;
+  documentNumber?: string | null;
+  issuedAt?: string | null;
+  expiresAt?: string | null;
+  notes?: string | null;
+}
+
+export interface Employee extends EmployeeSummary {
+  gender: string;
+  dateOfBirth?: string | null;
+  nationalId?: string | null;
+  passportNumber?: string | null;
+  nationality?: string | null;
+  maritalStatus: string;
+  bloodGroup?: string | null;
+  emergencyContactName?: string | null;
+  emergencyContactPhone?: string | null;
+  emergencyContactRelationship?: string | null;
+  confirmationDate?: string | null;
+  resignationDate?: string | null;
+  terminationDate?: string | null;
+  user?: {
+    id: string;
+    email: string;
+    status: string;
+    mfaEnabled: boolean;
+    lastLoginAt?: string | null;
+  } | null;
+  membership?: { id: string; status: string } | null;
+  directReports: Array<
+    Pick<
+      EmployeeSummary,
+      "id" | "employeeCode" | "firstName" | "lastName" | "photoUrl"
+    >
+  >;
+  employments: EmploymentRecord[];
+  projectAssignments: EmployeeProjectAssignment[];
+  certifications: EmployeeCredential[];
+  licenses: EmployeeCredential[];
+  documents: EmployeeDocument[];
+  teamMemberships: Array<{
+    id: string;
+    isPrimary: boolean;
+    team: { id: string; name: string };
+  }>;
+}
+
+export interface WorkforceOrgChartNode {
+  id: string;
+  employeeCode: string;
+  firstName: string;
+  lastName: string;
+  preferredName?: string | null;
+  photoUrl?: string | null;
+  status: EmployeeStatus;
+  managerEmployeeId?: string | null;
+  branch?: { id: string; name: string } | null;
+  department?: { id: string; name: string } | null;
+  designation?: { id: string; name: string } | null;
 }
