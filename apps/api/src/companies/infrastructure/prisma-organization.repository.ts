@@ -3,18 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  Branch,
-  BusinessUnit,
-  CostCenter,
-  Department,
-  Designation,
-  EntityStatus,
-  Prisma,
-  Region,
-  ReportingLine,
-  Team,
-} from '@prisma/client';
+import { EntityStatus, Prisma, ReportingLine } from '@prisma/client';
 import { AuditService } from '../../audit/audit.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import {

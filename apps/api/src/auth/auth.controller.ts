@@ -21,7 +21,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 const REFRESH_COOKIE = 'erp_refresh_token';
 
-type CookieRequest = Request & {
+type CookieRequest = Omit<Request, 'cookies'> & {
   cookies?: Record<string, string>;
 };
 
@@ -96,7 +96,7 @@ export class AuthController {
     });
   }
 
-  private clientMetadata(request: Request) {
+  private clientMetadata(request: Request | CookieRequest) {
     return {
       ipAddress: request.ip || request.socket.remoteAddress || null,
       userAgent: request.header('user-agent') ?? null,

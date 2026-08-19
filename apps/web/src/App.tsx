@@ -38,6 +38,14 @@ import { LeadDetailPage } from "./pages/crm/LeadDetailPage";
 import { PartyListPage } from "./pages/crm/PartyListPage";
 import { PartyFormPage } from "./pages/crm/PartyFormPage";
 import { PartyDetailPage } from "./pages/crm/PartyDetailPage";
+import { OpportunityListPage } from "./pages/crm/OpportunityListPage";
+import { OpportunityFormPage } from "./pages/crm/OpportunityFormPage";
+import { OpportunityDetailPage } from "./pages/crm/OpportunityDetailPage";
+import { OpportunityPipelinePage } from "./pages/crm/OpportunityPipelinePage";
+import { OpportunityForecastPage } from "./pages/crm/OpportunityForecastPage";
+import { ActivityListPage } from "./pages/crm/ActivityListPage";
+import { ActivityFormPage } from "./pages/crm/ActivityFormPage";
+import { ActivityDetailPage } from "./pages/crm/ActivityDetailPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -145,6 +153,46 @@ function App() {
               <Route path="/companies/:companyId/crm/contacts/new" element={<PartyFormPage kind="contact" />} />
               <Route path="/companies/:companyId/crm/contacts/:partyId" element={<PartyDetailPage kind="contact" />} />
               <Route path="/companies/:companyId/crm/contacts/:partyId/edit" element={<PartyFormPage kind="contact" />} />
+              <Route
+                path="/companies/:companyId/crm/opportunities"
+                element={<OpportunityListPage />}
+              />
+              <Route
+                path="/companies/:companyId/crm/opportunities/new"
+                element={<OpportunityFormPage />}
+              />
+              <Route
+                path="/companies/:companyId/crm/opportunities/pipeline"
+                element={<OpportunityPipelinePage />}
+              />
+              <Route
+                path="/companies/:companyId/crm/opportunities/forecast"
+                element={<OpportunityForecastPage />}
+              />
+              <Route
+                path="/companies/:companyId/crm/opportunities/:opportunityId"
+                element={<OpportunityDetailPage />}
+              />
+              <Route
+                path="/companies/:companyId/crm/opportunities/:opportunityId/edit"
+                element={<OpportunityFormPage />}
+              />
+              <Route
+                path="/companies/:companyId/crm/activities"
+                element={<ActivityListPage />}
+              />
+              <Route
+                path="/companies/:companyId/crm/activities/new"
+                element={<ActivityFormPage />}
+              />
+              <Route
+                path="/companies/:companyId/crm/activities/:activityId"
+                element={<ActivityDetailPage />}
+              />
+              <Route
+                path="/companies/:companyId/crm/activities/:activityId/edit"
+                element={<ActivityFormPage />}
+              />
               <Route
                 path="/companies/:companyId/employees/new"
                 element={<EmployeeFormPage />}

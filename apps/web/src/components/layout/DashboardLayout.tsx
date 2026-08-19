@@ -1,6 +1,7 @@
 import {
   Building2,
   BriefcaseBusiness,
+  CalendarClock,
   ContactRound,
   FolderKanban,
   GitBranch,
@@ -11,6 +12,7 @@ import {
   Palette,
   Settings2,
   Tags,
+  Target,
   Users,
   WalletCards,
 } from 'lucide-react';
@@ -47,6 +49,11 @@ export function DashboardLayout() {
             icon: BriefcaseBusiness,
           },
           {
+            to: `/companies/${companyId}/crm/opportunities`,
+            label: 'CRM · Opportunities',
+            icon: Target,
+          },
+          {
             to: `/companies/${companyId}/crm/companies`,
             label: 'CRM · Companies',
             icon: Building2,
@@ -55,6 +62,11 @@ export function DashboardLayout() {
             to: `/companies/${companyId}/crm/contacts`,
             label: 'CRM · Contacts',
             icon: ContactRound,
+          },
+          {
+            to: `/companies/${companyId}/crm/activities`,
+            label: 'CRM · Activities',
+            icon: CalendarClock,
           },
           {
             to: `/companies/${companyId}/employees`,

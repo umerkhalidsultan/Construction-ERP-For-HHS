@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/require-await, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/require-await, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call */
 import { QualityResultStatus } from '@prisma/client';
 import type { IAuditService } from '../audit/audit.interface';
 import { AuthenticatedPrincipal } from '../common/context/request-context.types';

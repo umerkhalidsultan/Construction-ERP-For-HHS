@@ -13,6 +13,11 @@ import { ValidationAppError } from './../src/common/errors/app-errors';
 import { mapValidationErrors } from './../src/common/errors/validation-error.mapper';
 
 describe('AppController (e2e)', () => {
+  interface HealthResponse {
+    status: string;
+    data: { status: string };
+  }
+
   let app: INestApplication<App>;
 
   beforeEach(async () => {
@@ -49,8 +54,9 @@ describe('AppController (e2e)', () => {
       .get('/api/v1/health')
       .expect(200)
       .expect((response) => {
-        expect(response.body.status).toBe('success');
-        expect(response.body.data.status).toBe('ok');
+        const body = response.body as HealthResponse;
+        expect(body.status).toBe('success');
+        expect(body.data.status).toBe('ok');
       });
   });
 });

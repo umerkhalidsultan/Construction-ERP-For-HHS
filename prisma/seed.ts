@@ -93,6 +93,29 @@ const permissionDefinitions = [
   ['CRM.Contact.Delete', 'CRM.Contact', 'Delete'],
   ['CRM.Contact.Assign', 'CRM.Contact', 'Assign'],
   ['CRM.Contact.Merge', 'CRM.Contact', 'Merge'],
+  ['CRM.Opportunity.View', 'CRM.Opportunity', 'View'],
+  ['CRM.Opportunity.Create', 'CRM.Opportunity', 'Create'],
+  ['CRM.Opportunity.Edit', 'CRM.Opportunity', 'Edit'],
+  ['CRM.Opportunity.Delete', 'CRM.Opportunity', 'Delete'],
+  ['CRM.Opportunity.Assign', 'CRM.Opportunity', 'Assign'],
+  ['CRM.Opportunity.ChangeStage', 'CRM.Opportunity', 'ChangeStage'],
+  ['CRM.Opportunity.ConvertLead', 'CRM.Opportunity', 'ConvertLead'],
+  ['CRM.Opportunity.MarkWon', 'CRM.Opportunity', 'MarkWon'],
+  ['CRM.Opportunity.MarkLost', 'CRM.Opportunity', 'MarkLost'],
+  ['CRM.Opportunity.Reopen', 'CRM.Opportunity', 'Reopen'],
+  ['CRM.Opportunity.Export', 'CRM.Opportunity', 'Export'],
+  ['CRM.Opportunity.ViewForecast', 'CRM.Opportunity', 'ViewForecast'],
+  ['CRM.Activity.View', 'CRM.Activity', 'View'],
+  ['CRM.Activity.Create', 'CRM.Activity', 'Create'],
+  ['CRM.Activity.Edit', 'CRM.Activity', 'Edit'],
+  ['CRM.Activity.Delete', 'CRM.Activity', 'Delete'],
+  ['CRM.Activity.Assign', 'CRM.Activity', 'Assign'],
+  ['CRM.Activity.Complete', 'CRM.Activity', 'Complete'],
+  ['CRM.Activity.Cancel', 'CRM.Activity', 'Cancel'],
+  ['CRM.Activity.Reschedule', 'CRM.Activity', 'Reschedule'],
+  ['CRM.Activity.ViewTeam', 'CRM.Activity', 'ViewTeam'],
+  ['CRM.Activity.Export', 'CRM.Activity', 'Export'],
+  ['CRM.Activity.ViewCalendar', 'CRM.Activity', 'ViewCalendar'],
 ] as const;
 
 const rolePermissions: Record<string, string[]> = {
@@ -173,12 +196,27 @@ const rolePermissions: Record<string, string[]> = {
     'CRM.Company.Delete', 'CRM.Company.Assign', 'CRM.Company.Merge',
     'CRM.Contact.View', 'CRM.Contact.Create', 'CRM.Contact.Edit',
     'CRM.Contact.Delete', 'CRM.Contact.Assign', 'CRM.Contact.Merge',
+    'CRM.Opportunity.View', 'CRM.Opportunity.Create', 'CRM.Opportunity.Edit',
+    'CRM.Opportunity.Delete', 'CRM.Opportunity.Assign',
+    'CRM.Opportunity.ChangeStage', 'CRM.Opportunity.ConvertLead',
+    'CRM.Opportunity.MarkWon', 'CRM.Opportunity.MarkLost',
+    'CRM.Opportunity.Reopen', 'CRM.Opportunity.Export',
+    'CRM.Opportunity.ViewForecast',
+    'CRM.Activity.View', 'CRM.Activity.Create', 'CRM.Activity.Edit',
+    'CRM.Activity.Delete', 'CRM.Activity.Assign', 'CRM.Activity.Complete',
+    'CRM.Activity.Cancel', 'CRM.Activity.Reschedule',
+    'CRM.Activity.ViewTeam', 'CRM.Activity.Export',
+    'CRM.Activity.ViewCalendar',
   ],
   'Business Development Executive': [
     'Company.View', 'CRM.View', 'CRM.Lead.View', 'CRM.Lead.Create',
     'CRM.Lead.Edit', 'CRM.Lead.ChangeStatus',
     'CRM.Company.View', 'CRM.Company.Create', 'CRM.Company.Edit',
     'CRM.Contact.View', 'CRM.Contact.Create', 'CRM.Contact.Edit',
+    'CRM.Opportunity.View', 'CRM.Opportunity.Create', 'CRM.Opportunity.Edit',
+    'CRM.Activity.View', 'CRM.Activity.Create', 'CRM.Activity.Edit',
+    'CRM.Activity.Complete', 'CRM.Activity.Cancel',
+    'CRM.Activity.Reschedule', 'CRM.Activity.ViewCalendar',
   ],
 };
 
@@ -196,6 +234,57 @@ const systemLeadSources = [
   ['PROPERTY_DEVELOPER', 'Property Developer'], ['CONSULTANT', 'Consultant'],
   ['ARCHITECT', 'Architect'], ['CONTRACTOR', 'Contractor'],
   ['TENDER_PORTAL', 'Tender Portal'], ['WALK_IN', 'Walk-in'], ['OTHER', 'Other'],
+] as const;
+
+const systemOpportunityStages: Array<{
+  code: string;
+  name: string;
+  description: string;
+  probability: number;
+  sortOrder: number;
+  isWon?: boolean;
+  isLost?: boolean;
+}> = [
+  { code: 'QUALIFICATION', name: 'Qualification', description: 'Initial assessment of the opportunity and its fit', probability: 10, sortOrder: 10 },
+  { code: 'SITE_VISIT', name: 'Site Visit', description: 'Physical site visit conducted to understand requirements', probability: 20, sortOrder: 20 },
+  { code: 'REQUIREMENTS_DEFINED', name: 'Requirements Defined', description: 'Client requirements captured and documented', probability: 30, sortOrder: 30 },
+  { code: 'ESTIMATION', name: 'Estimation', description: 'Cost estimation and pricing in progress', probability: 40, sortOrder: 40 },
+  { code: 'PROPOSAL', name: 'Proposal', description: 'Technical and commercial proposal submitted', probability: 60, sortOrder: 50 },
+  { code: 'NEGOTIATION', name: 'Negotiation', description: 'Terms and pricing under negotiation', probability: 75, sortOrder: 60 },
+  { code: 'FINAL_REVIEW', name: 'Final Review', description: 'Final review and approval of the deal', probability: 90, sortOrder: 70 },
+  { code: 'WON', name: 'Won', description: 'Opportunity won and converted to a contract', probability: 100, sortOrder: 80, isWon: true },
+  { code: 'LOST', name: 'Lost', description: 'Opportunity lost', probability: 0, sortOrder: 90, isLost: true },
+];
+
+const systemOpportunityTypes = [
+  ['RESIDENTIAL_CONSTRUCTION', 'Residential Construction'],
+  ['COMMERCIAL_CONSTRUCTION', 'Commercial Construction'],
+  ['INDUSTRIAL_CONSTRUCTION', 'Industrial Construction'],
+  ['INFRASTRUCTURE', 'Infrastructure'],
+  ['RENOVATION', 'Renovation'],
+  ['INTERIOR_FIT_OUT', 'Interior Fit-Out'],
+  ['SOLAR', 'Solar'],
+  ['MAINTENANCE', 'Maintenance'],
+  ['CIVIL_WORKS', 'Civil Works'],
+  ['MEP', 'MEP'],
+  ['OTHER', 'Other'],
+] as const;
+
+const systemOpportunitySources = [
+  ['EXISTING_LEAD', 'Existing Lead'], ['REFERRAL', 'Referral'],
+  ['WEBSITE', 'Website'], ['WHATSAPP', 'WhatsApp'], ['PHONE', 'Phone'],
+  ['EMAIL', 'Email'], ['TENDER_PORTAL', 'Tender Portal'],
+  ['ARCHITECT', 'Architect'], ['CONSULTANT', 'Consultant'],
+  ['DEVELOPER', 'Developer'], ['EXISTING_CLIENT', 'Existing Client'],
+  ['DIRECT_CONTACT', 'Direct Contact'], ['OTHER', 'Other'],
+] as const;
+
+const systemOpportunityLostReasons = [
+  ['PRICE', 'Price too high'], ['COMPETITOR', 'Lost to competitor'],
+  ['CLIENT_CANCELLED', 'Client cancelled'], ['PROJECT_CANCELLED', 'Project cancelled'],
+  ['SCOPE_CHANGED', 'Scope changed'], ['TIMING', 'Timing / project delayed'],
+  ['NO_RESPONSE', 'No response from client'], ['BUDGET', 'Client budget constraints'],
+  ['OTHER', 'Other'],
 ] as const;
 
 const systemCrmCompanyTypes = [
@@ -490,12 +579,65 @@ async function seedCrmPartyCatalog(): Promise<void> {
   }
 }
 
+async function seedOpportunityCatalog(): Promise<void> {
+  for (const stage of systemOpportunityStages) {
+    const existing = await prisma.opportunityStageDefinition.findFirst({ where: { companyId: null, code: stage.code } });
+    if (existing) {
+      await prisma.opportunityStageDefinition.update({
+        where: { id: existing.id },
+        data: {
+          name: stage.name,
+          description: stage.description,
+          probability: stage.probability,
+          sortOrder: stage.sortOrder,
+          isWon: stage.isWon ?? false,
+          isLost: stage.isLost ?? false,
+          isSystem: true,
+          deletedAt: null,
+        },
+      });
+    } else {
+      await prisma.opportunityStageDefinition.create({
+        data: {
+          code: stage.code,
+          name: stage.name,
+          description: stage.description,
+          probability: stage.probability,
+          sortOrder: stage.sortOrder,
+          isWon: stage.isWon ?? false,
+          isLost: stage.isLost ?? false,
+          isSystem: true,
+        },
+      });
+    }
+  }
+
+  for (const [index, [code, name]] of systemOpportunityTypes.entries()) {
+    const existing = await prisma.opportunityTypeDefinition.findFirst({ where: { companyId: null, code } });
+    if (existing) await prisma.opportunityTypeDefinition.update({ where: { id: existing.id }, data: { name, isSystem: true, sortOrder: (index + 1) * 10, deletedAt: null } });
+    else await prisma.opportunityTypeDefinition.create({ data: { code, name, isSystem: true, sortOrder: (index + 1) * 10 } });
+  }
+
+  for (const [index, [code, name]] of systemOpportunitySources.entries()) {
+    const existing = await prisma.opportunitySourceDefinition.findFirst({ where: { companyId: null, code } });
+    if (existing) await prisma.opportunitySourceDefinition.update({ where: { id: existing.id }, data: { name, isSystem: true, sortOrder: (index + 1) * 10, deletedAt: null } });
+    else await prisma.opportunitySourceDefinition.create({ data: { code, name, isSystem: true, sortOrder: (index + 1) * 10 } });
+  }
+
+  for (const [index, [code, name]] of systemOpportunityLostReasons.entries()) {
+    const existing = await prisma.opportunityLostReasonDefinition.findFirst({ where: { companyId: null, code } });
+    if (existing) await prisma.opportunityLostReasonDefinition.update({ where: { id: existing.id }, data: { name, isSystem: true, sortOrder: (index + 1) * 10, deletedAt: null } });
+    else await prisma.opportunityLostReasonDefinition.create({ data: { code, name, isSystem: true, sortOrder: (index + 1) * 10 } });
+  }
+}
+
 async function main(): Promise<void> {
   await seedPermissionsAndRoles();
   await seedProjectCatalog();
   await seedWorkforceCatalog();
   await seedLeadCatalog();
   await seedCrmPartyCatalog();
+  await seedOpportunityCatalog();
   await seedBootstrapAdministrator();
 }
 

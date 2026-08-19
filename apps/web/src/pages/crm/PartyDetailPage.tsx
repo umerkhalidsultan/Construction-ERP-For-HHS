@@ -3,6 +3,7 @@ import { ArrowLeft, FileText, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '../../components/feedback/Toast';
+import { ActivityPanel } from '../../components/crm/ActivityPanel';
 import { Alert } from '../../components/ui/Alert';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -34,6 +35,7 @@ export function PartyDetailPage({ kind }: { kind: 'company' | 'contact' }) {
       {isCompany ? <section className={panel}><h2 className="mb-3 font-semibold">Related leads</h2><div className="space-y-2">{company.leads?.map((x) => <Link key={x.id} to={`/companies/${companyId}/crm/leads/${x.id}`} className="block rounded-md border border-slate-200 p-3 text-sm text-primary-700">{x.leadNumber} · {x.name}</Link>)}{!company.leads?.length ? <p className="text-sm text-slate-500">No related leads.</p> : null}</div></section> : null}
       <section className={panel}><h2 className="mb-3 font-semibold">Future modules</h2><p className="text-sm text-slate-500">Opportunities, tenders, contracts and project party relationships will appear here when those modules are implemented.</p></section>
     </div>
+    <div className="mt-5"><ActivityPanel companyId={companyId} relatedType={isCompany ? 'CRM_COMPANY' : 'CRM_CONTACT'} relatedId={partyId} /></div>
     <section className={`${panel} mt-5`}><h2 className="mb-4 font-semibold">Timeline</h2><ol className="space-y-3">{timeline.data?.map((x) => <li key={x.id} className="border-l-2 border-primary-200 pl-3"><p className="text-sm font-medium">{x.action.replaceAll('.', ' · ')}</p><p className="text-xs text-slate-500">{new Date(x.createdAt).toLocaleString()} {x.user ? `· ${x.user.firstName} ${x.user.lastName}` : ''}</p></li>)}</ol></section>
   </div>;
 }

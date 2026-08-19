@@ -22,6 +22,7 @@ import { PermissionsGuard } from './common/guards/permissions.guard';
 import { WorkforceModule } from './workforce/workforce.module';
 import { QualityModule } from './quality/quality.module';
 import { CrmModule } from './crm/crm.module';
+import { OpportunityModule } from './opportunities/opportunity.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { CrmModule } from './crm/crm.module';
     WorkforceModule,
     QualityModule,
     CrmModule,
+    OpportunityModule,
   ],
   controllers: [AppController],
   providers: [

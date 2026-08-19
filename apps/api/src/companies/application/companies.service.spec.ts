@@ -4,9 +4,6 @@ import {
 } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
 import { ICompanyRepository } from '../domain/company.repository';
-import { CreateCompanyDto } from '../dto/create-company.dto';
-import { CompanyQueryDto } from '../dto/company-query.dto';
-import { UpdateCompanySettingsDto } from '../dto/update-company-settings.dto';
 
 describe('CompaniesService', () => {
   const repository: jest.Mocked<ICompanyRepository> = {
