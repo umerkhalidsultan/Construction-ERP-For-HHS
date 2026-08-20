@@ -4,6 +4,7 @@ import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 import { ApiError } from "./lib/api-client";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
+import { ChangePasswordPage } from "./pages/auth/ChangePasswordPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { CompanyBrandingPage } from "./pages/companies/CompanyBrandingPage";
 import { CompanyDetailPage } from "./pages/companies/CompanyDetailPage";
@@ -79,6 +80,10 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route
+                path="/account/password"
+                element={<ChangePasswordPage />}
+              />
               <Route path="/companies" element={<CompanyListPage />} />
               <Route path="/companies/new" element={<CompanyFormPage />} />
               <Route

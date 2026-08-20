@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Patch,
   Post,
   Req,
   Res,
@@ -14,8 +15,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
+import { AuthenticatedPrincipal } from '../common/context/request-context.types';
+import { CurrentPrincipal } from '../common/decorators/current-principal.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { AuthService } from './auth.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
@@ -83,6 +87,27 @@ export class AuthController {
     );
     response.clearCookie(REFRESH_COOKIE, { path: '/api/v1/auth' });
     return { message: 'Logged out successfully', data: null };
+  }
+
+  @ApiBearerAuth()
+  @Patch('password')
+  @ApiOperation({ summary: 'Change the signed-in user’s password' })
+  async changePassword(
+    @Body() dto: ChangePasswordDto,
+    @Req() request: CookieRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
+  ) {
+    await this.auth.changePassword(
+      principal.userId,
+      dto,
+      this.clientMetadata(request),
+      request.cookies?.[REFRESH_COOKIE],
+    );
+    return {
+      message:
+        'Password changed successfully. Other active sessions were signed out.',
+      data: null,
+    };
   }
 
   private setRefreshCookie(response: Response, token: string): void {

@@ -8,13 +8,21 @@ import { JwtService } from '@nestjs/jwt';
 import { CompanyStatus, MembershipStatus, UserStatus } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { createHash, randomUUID } from 'node:crypto';
+import {
+  AuthenticationAppError,
+  ValidationAppError,
+} from '../common/errors/app-errors';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   AccessTokenPayload,
   ClientMetadata,
   RefreshTokenPayload,
 } from './auth.types';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
+
+/** Matches the cost factor used when seeding the bootstrap administrator. */
+const PASSWORD_SALT_ROUNDS = 12;
 
 const membershipInclude = {
   company: {
@@ -188,6 +196,93 @@ export class AuthService {
       metadata,
       'TOKEN_REFRESHED',
     );
+  }
+
+  /**
+   * Changes the password for the authenticated user. Passwords live only in
+   * `users.password` as a bcrypt hash — the same column `login` verifies
+   * against — so there is exactly one source of truth.
+   */
+  async changePassword(
+    userId: string,
+    dto: ChangePasswordDto,
+    metadata: ClientMetadata,
+    currentRefreshToken?: string,
+  ): Promise<void> {
+    if (dto.newPassword !== dto.confirmPassword) {
+      throw new ValidationAppError({
+        confirmPassword: 'The new passwords do not match.',
+      });
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, status: UserStatus.ACTIVE, deletedAt: null },
+      select: { id: true, password: true },
+    });
+    if (!user) {
+      throw new AuthenticationAppError();
+    }
+
+    if (!(await bcrypt.compare(dto.currentPassword, user.password))) {
+      await this.prisma.userSecurityLog.create({
+        data: {
+          userId: user.id,
+          event: 'PASSWORD_CHANGE_FAILED',
+          success: false,
+          ipAddress: metadata.ipAddress,
+          userAgent: metadata.userAgent,
+        },
+      });
+      throw new ValidationAppError({
+        currentPassword: 'Your current password is incorrect.',
+      });
+    }
+
+    if (await bcrypt.compare(dto.newPassword, user.password)) {
+      throw new ValidationAppError({
+        newPassword: 'Your new password must be different from the current one.',
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(dto.newPassword, PASSWORD_SALT_ROUNDS);
+    const keepSessionId = currentRefreshToken
+      ? await this.sessionIdFromRefreshToken(currentRefreshToken)
+      : undefined;
+
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: user.id },
+        data: { password: passwordHash, updatedBy: user.id },
+      }),
+      // Any other session was established with the old credential.
+      this.prisma.session.updateMany({
+        where: {
+          userId: user.id,
+          revokedAt: null,
+          ...(keepSessionId ? { id: { not: keepSessionId } } : {}),
+        },
+        data: { revokedAt: new Date(), updatedBy: user.id },
+      }),
+      this.prisma.userSecurityLog.create({
+        data: {
+          userId: user.id,
+          event: 'PASSWORD_CHANGED',
+          ipAddress: metadata.ipAddress,
+          userAgent: metadata.userAgent,
+          metadata: { keptSessionId: keepSessionId ?? null },
+        },
+      }),
+    ]);
+  }
+
+  private async sessionIdFromRefreshToken(
+    token: string,
+  ): Promise<string | undefined> {
+    try {
+      return (await this.verifyRefreshToken(token)).sessionId;
+    } catch {
+      return undefined;
+    }
   }
 
   async logout(refreshToken?: string): Promise<void> {

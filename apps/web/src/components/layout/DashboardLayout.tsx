@@ -5,6 +5,7 @@ import {
   ContactRound,
   FolderKanban,
   GitBranch,
+  KeyRound,
   Layers3,
   LayoutDashboard,
   LogOut,
@@ -19,6 +20,7 @@ import {
 import { NavLink, Outlet, useNavigate, useParams } from 'react-router-dom';
 import { logout as logoutRequest } from '../../services/auth.service';
 import { useAuthStore } from '../../store/auth.store';
+import { useActiveCompanyContext } from '../../hooks/useActiveCompanyContext';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/Button';
 
@@ -26,6 +28,7 @@ export function DashboardLayout() {
   const navigate = useNavigate();
   const params = useParams();
   const { user, activeCompany, logout } = useAuthStore();
+  useActiveCompanyContext();
   const companyId = params.companyId ?? activeCompany?.id;
 
   const navItems = [
@@ -173,10 +176,19 @@ export function DashboardLayout() {
               {user?.isPlatformAdmin ? ' · Platform Admin' : ''}
             </p>
           </div>
-          <Button variant="ghost" onClick={() => void handleLogout()}>
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </Button>
+          <div className="flex items-center gap-1">
+            <NavLink
+              to="/account/password"
+              className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            >
+              <KeyRound className="h-4 w-4" />
+              <span className="hidden sm:inline">Change password</span>
+            </NavLink>
+            <Button variant="ghost" onClick={() => void handleLogout()}>
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </Button>
+          </div>
         </header>
         <main className="flex-1 overflow-auto p-4 sm:p-6">
           <Outlet />
