@@ -32,7 +32,10 @@ describe('AuthService.changePassword', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     prisma.$transaction.mockResolvedValue([]);
-    prisma.user.findFirst.mockResolvedValue({ id: userId, password: currentHash });
+    prisma.user.findFirst.mockResolvedValue({
+      id: userId,
+      password: currentHash,
+    });
     service = new AuthService(prisma as never, jwt as never, config as never);
   });
 
@@ -90,9 +93,9 @@ describe('AuthService.changePassword', () => {
 
   it('rejects an unavailable user account', async () => {
     prisma.user.findFirst.mockResolvedValue(null);
-    await expect(
-      service.changePassword(userId, dto, metadata),
-    ).rejects.toThrow(AuthenticationAppError);
+    await expect(service.changePassword(userId, dto, metadata)).rejects.toThrow(
+      AuthenticationAppError,
+    );
   });
 
   it('persists a bcrypt hash of the new password to users.password', async () => {
@@ -103,7 +106,9 @@ describe('AuthService.changePassword', () => {
         data: expect.objectContaining({ updatedBy: userId }),
       }),
     );
-    const written = prisma.user.update.mock.calls[0][0].data.password as string;
+    const written = (
+      prisma.user.update.mock.calls[0] as [{ data: { password: string } }]
+    )[0].data.password;
     expect(written).not.toBe(dto.newPassword);
     expect(written.startsWith('$2')).toBe(true);
     await expect(bcrypt.compare(dto.newPassword, written)).resolves.toBe(true);
@@ -114,7 +119,10 @@ describe('AuthService.changePassword', () => {
   });
 
   it('revokes every other session and keeps the caller signed in', async () => {
-    jwt.verifyAsync.mockResolvedValue({ type: 'refresh', sessionId: 'keep-me' });
+    jwt.verifyAsync.mockResolvedValue({
+      type: 'refresh',
+      sessionId: 'keep-me',
+    });
     await service.changePassword(userId, dto, metadata, 'refresh-token');
     expect(prisma.session.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -129,7 +137,11 @@ describe('AuthService.changePassword', () => {
 
   it('revokes all sessions when no current refresh token is supplied', async () => {
     await service.changePassword(userId, dto, metadata);
-    const where = prisma.session.updateMany.mock.calls[0][0].where;
+    const { where } = (
+      prisma.session.updateMany.mock.calls[0] as [
+        { where: Record<string, unknown> },
+      ]
+    )[0];
     expect(where).toEqual(expect.objectContaining({ userId, revokedAt: null }));
     expect(where).not.toHaveProperty('id');
   });

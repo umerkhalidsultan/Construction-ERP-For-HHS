@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Plus, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { DataTable } from '../../components/ui/DataTable';
@@ -28,15 +28,18 @@ function monthRange(offsetDays = 0) {
 
 export function ActivityListPage() {
   const { companyId = '' } = useParams();
+  const [searchParams] = useSearchParams();
   const [tab, setTab] = useState<'list' | 'calendar' | 'team'>('list');
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [type, setType] = useState('');
+  const [type, setType] = useState(() => searchParams.get('type') ?? '');
   const [status, setStatus] = useState('');
   const [priority, setPriority] = useState('');
   const [relatedType, setRelatedType] = useState('');
   const [assignedToId, setAssignedToId] = useState('');
-  const [overdueOnly, setOverdueOnly] = useState(false);
+  const [overdueOnly, setOverdueOnly] = useState(
+    () => searchParams.get('overdueOnly') === 'true',
+  );
   const [sortBy, setSortBy] = useState('dueDate');
 
   const catalog = useQuery({ queryKey: ['activity-catalog', companyId], queryFn: async () => (await getActivityCatalog(companyId)).data, enabled: Boolean(companyId) });

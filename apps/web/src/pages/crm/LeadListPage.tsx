@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Plus, Search } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { DataTable } from '../../components/ui/DataTable';
@@ -18,11 +18,14 @@ const assignee = (lead: Lead) => lead.assignedTo ? `${lead.assignedTo.user.first
 
 export function LeadListPage() {
   const { companyId = '' } = useParams();
+  const [searchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState(() => searchParams.get('status') ?? '');
   const [leadTypeId, setLeadTypeId] = useState('');
-  const [leadSourceId, setLeadSourceId] = useState('');
+  const [leadSourceId, setLeadSourceId] = useState(
+    () => searchParams.get('leadSourceId') ?? '',
+  );
   const [priority, setPriority] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const catalog = useQuery({ queryKey: ['lead-catalog', companyId], queryFn: async () => (await getLeadCatalog(companyId)).data, enabled: Boolean(companyId) });

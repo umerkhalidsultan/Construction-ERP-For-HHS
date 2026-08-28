@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Download, KanbanSquare, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { DataTable } from '../../components/ui/DataTable';
@@ -19,12 +19,15 @@ const overdue = (opp: Opportunity) => opp.status === 'OPEN' && opp.expectedClosi
 
 export function OpportunityListPage() {
   const { companyId = '' } = useParams();
+  const [searchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
-  const [stageId, setStageId] = useState('');
-  const [opportunityTypeId, setOpportunityTypeId] = useState('');
-  const [sourceId, setSourceId] = useState('');
+  const [status, setStatus] = useState(() => searchParams.get('status') ?? '');
+  const [stageId, setStageId] = useState(() => searchParams.get('stageId') ?? '');
+  const [opportunityTypeId, setOpportunityTypeId] = useState(
+    () => searchParams.get('opportunityTypeId') ?? '',
+  );
+  const [sourceId, setSourceId] = useState(() => searchParams.get('sourceId') ?? '');
   const [assignedToId, setAssignedToId] = useState('');
   const [priority, setPriority] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');

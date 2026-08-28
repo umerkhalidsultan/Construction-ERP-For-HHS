@@ -44,9 +44,14 @@ import { OpportunityFormPage } from "./pages/crm/OpportunityFormPage";
 import { OpportunityDetailPage } from "./pages/crm/OpportunityDetailPage";
 import { OpportunityPipelinePage } from "./pages/crm/OpportunityPipelinePage";
 import { OpportunityForecastPage } from "./pages/crm/OpportunityForecastPage";
+import { CrmDashboardPage } from "./pages/crm/CrmDashboardPage";
 import { ActivityListPage } from "./pages/crm/ActivityListPage";
 import { ActivityFormPage } from "./pages/crm/ActivityFormPage";
 import { ActivityDetailPage } from "./pages/crm/ActivityDetailPage";
+import { TenderListPage } from "./pages/tenders/TenderListPage";
+import { TenderFormPage } from "./pages/tenders/TenderFormPage";
+import { TenderDetailPage } from "./pages/tenders/TenderDetailPage";
+import { TenderOperationsPage } from "./pages/tenders/TenderOperationsPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -150,14 +155,38 @@ function App() {
                 path="/companies/:companyId/crm/leads/:leadId/edit"
                 element={<LeadFormPage />}
               />
-              <Route path="/companies/:companyId/crm/companies" element={<PartyListPage kind="companies" />} />
-              <Route path="/companies/:companyId/crm/companies/new" element={<PartyFormPage kind="company" />} />
-              <Route path="/companies/:companyId/crm/companies/:partyId" element={<PartyDetailPage kind="company" />} />
-              <Route path="/companies/:companyId/crm/companies/:partyId/edit" element={<PartyFormPage kind="company" />} />
-              <Route path="/companies/:companyId/crm/contacts" element={<PartyListPage kind="contacts" />} />
-              <Route path="/companies/:companyId/crm/contacts/new" element={<PartyFormPage kind="contact" />} />
-              <Route path="/companies/:companyId/crm/contacts/:partyId" element={<PartyDetailPage kind="contact" />} />
-              <Route path="/companies/:companyId/crm/contacts/:partyId/edit" element={<PartyFormPage kind="contact" />} />
+              <Route
+                path="/companies/:companyId/crm/companies"
+                element={<PartyListPage kind="companies" />}
+              />
+              <Route
+                path="/companies/:companyId/crm/companies/new"
+                element={<PartyFormPage kind="company" />}
+              />
+              <Route
+                path="/companies/:companyId/crm/companies/:partyId"
+                element={<PartyDetailPage kind="company" />}
+              />
+              <Route
+                path="/companies/:companyId/crm/companies/:partyId/edit"
+                element={<PartyFormPage kind="company" />}
+              />
+              <Route
+                path="/companies/:companyId/crm/contacts"
+                element={<PartyListPage kind="contacts" />}
+              />
+              <Route
+                path="/companies/:companyId/crm/contacts/new"
+                element={<PartyFormPage kind="contact" />}
+              />
+              <Route
+                path="/companies/:companyId/crm/contacts/:partyId"
+                element={<PartyDetailPage kind="contact" />}
+              />
+              <Route
+                path="/companies/:companyId/crm/contacts/:partyId/edit"
+                element={<PartyFormPage kind="contact" />}
+              />
               <Route
                 path="/companies/:companyId/crm/opportunities"
                 element={<OpportunityListPage />}
@@ -183,6 +212,10 @@ function App() {
                 element={<OpportunityFormPage />}
               />
               <Route
+                path="/companies/:companyId/crm/dashboard"
+                element={<CrmDashboardPage />}
+              />
+              <Route
                 path="/companies/:companyId/crm/activities"
                 element={<ActivityListPage />}
               />
@@ -197,6 +230,26 @@ function App() {
               <Route
                 path="/companies/:companyId/crm/activities/:activityId/edit"
                 element={<ActivityFormPage />}
+              />
+              <Route
+                path="/companies/:companyId/tenders"
+                element={<TenderListPage />}
+              />
+              <Route path="/companies/:companyId/tenders/dashboard" element={<TenderOperationsPage mode="dashboard" />} />
+              <Route path="/companies/:companyId/tenders/mine" element={<TenderOperationsPage mode="mine" />} />
+              <Route path="/companies/:companyId/tenders/calendar" element={<TenderOperationsPage mode="calendar" />} />
+              <Route path="/companies/:companyId/tenders/pipeline" element={<TenderOperationsPage mode="pipeline" />} />
+              <Route
+                path="/companies/:companyId/tenders/new"
+                element={<TenderFormPage />}
+              />
+              <Route
+                path="/companies/:companyId/tenders/:tenderId/edit"
+                element={<TenderFormPage />}
+              />
+              <Route
+                path="/companies/:companyId/tenders/:tenderId"
+                element={<TenderDetailPage />}
               />
               <Route
                 path="/companies/:companyId/employees/new"

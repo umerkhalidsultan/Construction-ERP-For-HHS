@@ -240,11 +240,15 @@ export class AuthService {
 
     if (await bcrypt.compare(dto.newPassword, user.password)) {
       throw new ValidationAppError({
-        newPassword: 'Your new password must be different from the current one.',
+        newPassword:
+          'Your new password must be different from the current one.',
       });
     }
 
-    const passwordHash = await bcrypt.hash(dto.newPassword, PASSWORD_SALT_ROUNDS);
+    const passwordHash = await bcrypt.hash(
+      dto.newPassword,
+      PASSWORD_SALT_ROUNDS,
+    );
     const keepSessionId = currentRefreshToken
       ? await this.sessionIdFromRefreshToken(currentRefreshToken)
       : undefined;

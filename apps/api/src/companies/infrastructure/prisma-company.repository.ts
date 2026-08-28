@@ -44,6 +44,7 @@ const DEFAULT_SEQUENCES = [
   ['PO', 'PO-{YYYY}-'],
   ['INV', 'INV-{YYYY}-'],
   ['PROJ', 'PROJ-{YYYY}-'],
+  ['TENDER', 'TND-{YYYY}-'],
   ['EMP', 'EMP-{YYYY}-'],
 ] as const;
 
