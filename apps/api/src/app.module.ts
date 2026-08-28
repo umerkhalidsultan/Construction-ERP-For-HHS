@@ -23,6 +23,7 @@ import { WorkforceModule } from './workforce/workforce.module';
 import { QualityModule } from './quality/quality.module';
 import { CrmModule } from './crm/crm.module';
 import { OpportunityModule } from './opportunities/opportunity.module';
+import { TenderModule } from './tenders/tender.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { OpportunityModule } from './opportunities/opportunity.module';
     QualityModule,
     CrmModule,
     OpportunityModule,
+    TenderModule,
   ],
   controllers: [AppController],
   providers: [

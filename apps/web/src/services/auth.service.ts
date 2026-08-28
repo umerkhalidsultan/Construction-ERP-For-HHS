@@ -9,6 +9,14 @@ export async function login(email: string, password: string, companyId?: string)
   });
 }
 
+export async function changePassword(body: {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}) {
+  return apiRequest<null>('/auth/password', { method: 'PATCH', body });
+}
+
 export async function logout() {
   return apiRequest<null>('/auth/logout', {
     method: 'POST',

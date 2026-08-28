@@ -582,10 +582,458 @@ model Company {
   opportunityAttachments    OpportunityAttachment[]
   crmActivities             CrmActivity[]
   crmActivityAttachments    CrmActivityAttachment[]
+  tenders                   Tender[]
 
   @@index([status, deletedAt])
   @@index([displayName])
   @@map("companies")
+}
+
+// -----------------------------------------------------------------------------
+// TENDER MANAGEMENT FOUNDATION
+// -----------------------------------------------------------------------------
+
+enum TenderStatus {
+  DRAFT
+  REGISTERED
+  UNDER_REVIEW
+  BID_DECISION_PENDING
+  BID_APPROVED
+  NO_BID
+  PREPARING
+  READY_FOR_SUBMISSION
+  SUBMITTED
+  CLARIFICATION
+  TECHNICAL_EVALUATION
+  COMMERCIAL_EVALUATION
+  NEGOTIATION
+  AWARDED
+  LOST
+  CANCELLED
+}
+
+enum TenderPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+  CRITICAL
+}
+
+enum TenderRequirementStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  READY
+  VERIFIED
+  NOT_APPLICABLE
+  BLOCKED
+}
+
+enum TenderBidDecisionType {
+  BID
+  NO_BID
+}
+
+enum TenderSubmissionMethod {
+  ONLINE_PORTAL
+  EMAIL
+  PHYSICAL
+  COURIER
+  OTHER
+}
+
+enum TenderEstimateStatus {
+  DRAFT
+  IN_PROGRESS
+  UNDER_REVIEW
+  APPROVED
+  SUPERSEDED
+  ARCHIVED
+}
+
+enum TenderEstimateResourceType {
+  MATERIAL
+  LABOR
+  EQUIPMENT
+  SUBCONTRACT
+  OTHER
+}
+
+enum TenderPricingStatus {
+  DRAFT
+  IN_PROGRESS
+  UNDER_REVIEW
+  APPROVED
+  SUPERSEDED
+  ARCHIVED
+}
+
+enum TenderPricingBasis {
+  FIXED_AMOUNT
+  PERCENT_OF_DIRECT_COST
+  QUANTITY_X_RATE
+}
+
+model Tender {
+  id                        String                @id @default(uuid()) @db.Uuid
+  companyId                 String                @db.Uuid
+  tenderNumber              String                @db.VarChar(50)
+  title                     String                @db.VarChar(255)
+  internalReference         String?               @db.VarChar(100)
+  opportunityId             String?               @db.Uuid
+  clientCompanyId           String                @db.Uuid
+  primaryContactId          String?               @db.Uuid
+  consultantCompanyId       String?               @db.Uuid
+  architectCompanyId        String?               @db.Uuid
+  tenderType                String                @db.VarChar(100)
+  projectType               String?               @db.VarChar(120)
+  projectLocation           String?               @db.VarChar(500)
+  city                      String?               @db.VarChar(120)
+  issueDate                 DateTime?             @db.Date
+  closingDate               DateTime              @db.Timestamptz(3)
+  clarificationDeadline     DateTime?             @db.Timestamptz(3)
+  openingDate               DateTime?             @db.Timestamptz(3)
+  expectedAwardDate         DateTime?             @db.Date
+  estimatedValue            Decimal?              @db.Decimal(18, 2)
+  awardedValue              Decimal?              @db.Decimal(18, 2)
+  currency                  String                @db.Char(3)
+  tenderManagerMembershipId String?               @db.Uuid
+  teamId                    String?               @db.Uuid
+  priority                  TenderPriority        @default(MEDIUM)
+  status                    TenderStatus          @default(DRAFT)
+  description               String?               @db.Text
+  scopeSummary              String?               @db.Text
+  awardDate                 DateTime?             @db.Date
+  awardReference            String?               @db.VarChar(160)
+  awardNotes                String?               @db.Text
+  lostDate                  DateTime?             @db.Date
+  lostReason                String?               @db.VarChar(1000)
+  lostNotes                 String?               @db.Text
+  competitorCompanyId       String?               @db.Uuid
+  cancellationReason        String?               @db.VarChar(1000)
+  createdAt                 DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt                 DateTime              @updatedAt @db.Timestamptz(3)
+  createdBy                 String?               @db.Uuid
+  updatedBy                 String?               @db.Uuid
+  deletedAt                 DateTime?             @db.Timestamptz(3)
+  company                   Company               @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  opportunity               Opportunity?          @relation(fields: [opportunityId, companyId], references: [id, companyId], onDelete: Restrict)
+  clientCompany             CrmCompany            @relation("TenderClient", fields: [clientCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  primaryContact            CrmContact?           @relation(fields: [primaryContactId, companyId], references: [id, companyId], onDelete: Restrict)
+  consultant                CrmCompany?           @relation("TenderConsultant", fields: [consultantCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  architect                 CrmCompany?           @relation("TenderArchitect", fields: [architectCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  competitor                CrmCompany?           @relation("TenderCompetitor", fields: [competitorCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  tenderManager             CompanyMembership?    @relation("TenderManager", fields: [tenderManagerMembershipId, companyId], references: [id, companyId], onDelete: Restrict)
+  team                      Team?                 @relation(fields: [teamId, companyId], references: [id, companyId], onDelete: Restrict)
+  teamMembers               TenderTeamMember[]
+  requirements              TenderRequirement[]
+  bidDecision               TenderBidDecision?
+  submissions               TenderSubmission[]
+  attachments               TenderAttachment[]
+  siteVisits                TenderSiteVisit[]
+  preBidMeetings            TenderPreBidMeeting[]
+  estimates                 TenderEstimate[]
+  pricings                  TenderPricing[]
+
+  @@unique([companyId, tenderNumber])
+  @@unique([id, companyId])
+  @@index([companyId, status, deletedAt, closingDate])
+  @@index([companyId, tenderManagerMembershipId, deletedAt])
+  @@index([companyId, clientCompanyId, deletedAt])
+  @@map("tenders")
+}
+
+model TenderEstimate {
+  id                  String                  @id @default(uuid()) @db.Uuid
+  companyId           String                  @db.Uuid
+  tenderId            String                  @db.Uuid
+  estimateNumber      String                  @db.VarChar(80)
+  revision            Int                     @default(0)
+  title               String                  @db.VarChar(255)
+  description         String?                 @db.Text
+  status              TenderEstimateStatus    @default(DRAFT)
+  currency            String                  @db.Char(3)
+  baseDate            DateTime?               @db.Date
+  lockedAt            DateTime?               @db.Timestamptz(3)
+  lockedBy            String?                 @db.Uuid
+  createdBy           String?                 @db.Uuid
+  updatedBy           String?                 @db.Uuid
+  createdAt           DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime                @updatedAt @db.Timestamptz(3)
+  deletedAt           DateTime?               @db.Timestamptz(3)
+  tender              Tender                  @relation(fields: [tenderId, companyId], references: [id, companyId], onDelete: Restrict)
+  sections            TenderEstimateSection[]
+  tenderEstimateItems TenderEstimateItem[]
+  pricings            TenderPricing[]
+
+  @@unique([tenderId, revision])
+  @@unique([companyId, estimateNumber])
+  @@index([companyId, tenderId, status, deletedAt])
+  @@map("tender_estimates")
+}
+
+model TenderEstimateSection {
+  id          String               @id @default(uuid()) @db.Uuid
+  companyId   String               @db.Uuid
+  estimateId  String               @db.Uuid
+  code        String?              @db.VarChar(80)
+  title       String               @db.VarChar(255)
+  description String?              @db.Text
+  sortOrder   Int                  @default(0)
+  notes       String?              @db.Text
+  createdAt   DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime             @updatedAt @db.Timestamptz(3)
+  deletedAt   DateTime?            @db.Timestamptz(3)
+  estimate    TenderEstimate       @relation(fields: [estimateId], references: [id], onDelete: Restrict)
+  items       TenderEstimateItem[]
+
+  @@index([companyId, estimateId, sortOrder, deletedAt])
+  @@map("tender_estimate_sections")
+}
+
+model TenderEstimateItem {
+  id              String                   @id @default(uuid()) @db.Uuid
+  companyId       String                   @db.Uuid
+  estimateId      String                   @db.Uuid
+  sectionId       String?                  @db.Uuid
+  itemNumber      String?                  @db.VarChar(100)
+  description     String                   @db.Text
+  quantity        Decimal                  @default(0) @db.Decimal(18, 4)
+  unit            String?                  @db.VarChar(40)
+  materialCost    Decimal                  @default(0) @db.Decimal(18, 4)
+  laborCost       Decimal                  @default(0) @db.Decimal(18, 4)
+  equipmentCost   Decimal                  @default(0) @db.Decimal(18, 4)
+  subcontractCost Decimal                  @default(0) @db.Decimal(18, 4)
+  otherCost       Decimal                  @default(0) @db.Decimal(18, 4)
+  wastePercent    Decimal                  @default(0) @db.Decimal(8, 4)
+  unitDirectCost  Decimal                  @default(0) @db.Decimal(18, 4)
+  totalDirectCost Decimal                  @default(0) @db.Decimal(18, 2)
+  notes           String?                  @db.Text
+  sourceReference String?                  @db.VarChar(255)
+  sortOrder       Int                      @default(0)
+  createdAt       DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime                 @updatedAt @db.Timestamptz(3)
+  deletedAt       DateTime?                @db.Timestamptz(3)
+  estimate        TenderEstimate           @relation(fields: [estimateId], references: [id], onDelete: Restrict)
+  section         TenderEstimateSection?   @relation(fields: [sectionId], references: [id], onDelete: Restrict)
+  resources       TenderEstimateResource[]
+
+  @@unique([estimateId, itemNumber])
+  @@index([companyId, estimateId, sectionId, sortOrder, deletedAt])
+  @@map("tender_estimate_items")
+}
+
+model TenderEstimateResource {
+  id                String                     @id @default(uuid()) @db.Uuid
+  companyId         String                     @db.Uuid
+  itemId            String                     @db.Uuid
+  resourceType      TenderEstimateResourceType
+  description       String                     @db.VarChar(500)
+  quantityPerUnit   Decimal                    @default(0) @db.Decimal(18, 4)
+  unit              String?                    @db.VarChar(40)
+  unitCost          Decimal                    @default(0) @db.Decimal(18, 4)
+  wastePercent      Decimal                    @default(0) @db.Decimal(8, 4)
+  totalContribution Decimal                    @default(0) @db.Decimal(18, 4)
+  notes             String?                    @db.Text
+  createdAt         DateTime                   @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime                   @updatedAt @db.Timestamptz(3)
+  deletedAt         DateTime?                  @db.Timestamptz(3)
+  item              TenderEstimateItem         @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+  @@index([companyId, itemId, resourceType, deletedAt])
+  @@map("tender_estimate_resources")
+}
+
+model TenderPricing {
+  id                String                      @id @default(uuid()) @db.Uuid
+  companyId         String                      @db.Uuid
+  tenderId          String                      @db.Uuid
+  estimateId        String                      @db.Uuid
+  pricingReference  String                      @db.VarChar(80)
+  revision          Int                         @default(0)
+  title             String                      @db.VarChar(255)
+  description       String?                     @db.Text
+  status            TenderPricingStatus         @default(DRAFT)
+  currency          String                      @db.Char(3)
+  baseDirectCost    Decimal                     @default(0) @db.Decimal(18, 2)
+  totalIndirectCost Decimal                     @default(0) @db.Decimal(18, 2)
+  profitAmount      Decimal                     @default(0) @db.Decimal(18, 2)
+  discountAmount    Decimal                     @default(0) @db.Decimal(18, 2)
+  taxAmount         Decimal                     @default(0) @db.Decimal(18, 2)
+  finalTenderPrice  Decimal                     @default(0) @db.Decimal(18, 2)
+  approvedAt        DateTime?                   @db.Timestamptz(3)
+  approvedBy        String?                     @db.Uuid
+  createdBy         String?                     @db.Uuid
+  updatedBy         String?                     @db.Uuid
+  createdAt         DateTime                    @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime                    @updatedAt @db.Timestamptz(3)
+  deletedAt         DateTime?                   @db.Timestamptz(3)
+  tender            Tender                      @relation(fields: [tenderId, companyId], references: [id, companyId], onDelete: Restrict)
+  estimate          TenderEstimate              @relation(fields: [estimateId], references: [id], onDelete: Restrict)
+  indirectCosts     TenderPricingIndirectCost[]
+
+  @@unique([tenderId, revision])
+  @@unique([companyId, pricingReference])
+  @@index([companyId, tenderId, status, deletedAt])
+  @@map("tender_pricings")
+}
+
+model TenderPricingIndirectCost {
+  id          String             @id @default(uuid()) @db.Uuid
+  companyId   String             @db.Uuid
+  pricingId   String             @db.Uuid
+  category    String             @db.VarChar(100)
+  description String             @db.VarChar(500)
+  basis       TenderPricingBasis
+  quantity    Decimal            @default(0) @db.Decimal(18, 4)
+  unitCost    Decimal            @default(0) @db.Decimal(18, 4)
+  percentage  Decimal            @default(0) @db.Decimal(8, 4)
+  amount      Decimal            @default(0) @db.Decimal(18, 2)
+  notes       String?            @db.Text
+  sortOrder   Int                @default(0)
+  createdAt   DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime           @updatedAt @db.Timestamptz(3)
+  deletedAt   DateTime?          @db.Timestamptz(3)
+  pricing     TenderPricing      @relation(fields: [pricingId], references: [id], onDelete: Restrict)
+
+  @@index([companyId, pricingId, sortOrder, deletedAt])
+  @@map("tender_pricing_indirect_costs")
+}
+
+model TenderTeamMember {
+  id           String    @id @default(uuid()) @db.Uuid
+  companyId    String    @db.Uuid
+  tenderId     String    @db.Uuid
+  membershipId String    @db.Uuid
+  role         String    @db.VarChar(100)
+  assignedAt   DateTime  @default(now()) @db.Timestamptz(3)
+  assignedBy   String?   @db.Uuid
+  active       Boolean   @default(true)
+  deletedAt    DateTime? @db.Timestamptz(3)
+  tender       Tender    @relation(fields: [tenderId, companyId], references: [id, companyId], onDelete: Restrict)
+
+  @@unique([tenderId, membershipId, role])
+  @@index([companyId, membershipId, active])
+  @@map("tender_team_members")
+}
+
+model TenderRequirement {
+  id                      String                  @id @default(uuid()) @db.Uuid
+  companyId               String                  @db.Uuid
+  tenderId                String                  @db.Uuid
+  name                    String                  @db.VarChar(255)
+  category                String?                 @db.VarChar(120)
+  mandatory               Boolean                 @default(false)
+  responsibleMembershipId String?                 @db.Uuid
+  dueDate                 DateTime?               @db.Timestamptz(3)
+  status                  TenderRequirementStatus @default(NOT_STARTED)
+  notes                   String?                 @db.Text
+  verifiedAt              DateTime?               @db.Timestamptz(3)
+  verifiedBy              String?                 @db.Uuid
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  deletedAt               DateTime?               @db.Timestamptz(3)
+  tender                  Tender                  @relation(fields: [tenderId, companyId], references: [id, companyId], onDelete: Restrict)
+
+  @@index([companyId, tenderId, status, deletedAt])
+  @@map("tender_requirements")
+}
+
+model TenderBidDecision {
+  id           String                @id @default(uuid()) @db.Uuid
+  companyId    String                @db.Uuid
+  tenderId     String                @unique @db.Uuid
+  decision     TenderBidDecisionType
+  decisionDate DateTime              @default(now()) @db.Timestamptz(3)
+  decidedBy    String                @db.Uuid
+  reason       String?               @db.VarChar(1000)
+  notes        String?               @db.Text
+  assessment   Json                  @default("{}")
+  overallScore Decimal?              @db.Decimal(5, 2)
+  tender       Tender                @relation(fields: [tenderId, companyId], references: [id, companyId], onDelete: Restrict)
+
+  @@unique([tenderId, companyId])
+  @@index([companyId, decision])
+  @@map("tender_bid_decisions")
+}
+
+model TenderSubmission {
+  id             String                 @id @default(uuid()) @db.Uuid
+  companyId      String                 @db.Uuid
+  tenderId       String                 @db.Uuid
+  submittedAt    DateTime               @db.Timestamptz(3)
+  submittedBy    String                 @db.Uuid
+  method         TenderSubmissionMethod
+  reference      String?                @db.VarChar(255)
+  notes          String?                @db.Text
+  evidenceFileId String?                @db.Uuid
+  tender         Tender                 @relation(fields: [tenderId, companyId], references: [id, companyId], onDelete: Restrict)
+
+  @@index([companyId, tenderId, submittedAt])
+  @@map("tender_submissions")
+}
+
+model TenderAttachment {
+  id         String     @id @default(uuid()) @db.Uuid
+  companyId  String     @db.Uuid
+  tenderId   String     @db.Uuid
+  fileId     String     @db.Uuid
+  category   String?    @db.VarChar(120)
+  title      String?    @db.VarChar(255)
+  addedBy    String?    @db.Uuid
+  addedAt    DateTime   @default(now()) @db.Timestamptz(3)
+  deletedAt  DateTime?  @db.Timestamptz(3)
+  tender     Tender     @relation(fields: [tenderId, companyId], references: [id, companyId], onDelete: Restrict)
+  fileObject FileObject @relation(fields: [fileId], references: [id], onDelete: Restrict)
+
+  @@unique([tenderId, fileId])
+  @@index([companyId, tenderId, deletedAt])
+  @@map("tender_attachments")
+}
+
+model TenderSiteVisit {
+  id             String    @id @default(uuid()) @db.Uuid
+  companyId      String    @db.Uuid
+  tenderId       String    @db.Uuid
+  visitDate      DateTime  @db.Timestamptz(3)
+  location       String?   @db.VarChar(500)
+  attendees      String?   @db.Text
+  siteConditions String?   @db.Text
+  access         String?   @db.Text
+  logistics      String?   @db.Text
+  utilities      String?   @db.Text
+  constraints    String?   @db.Text
+  observations   String?   @db.Text
+  notes          String?   @db.Text
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @db.Timestamptz(3)
+  deletedAt      DateTime? @db.Timestamptz(3)
+  tender         Tender    @relation(fields: [tenderId, companyId], references: [id, companyId], onDelete: Restrict)
+
+  @@index([companyId, tenderId, visitDate])
+  @@map("tender_site_visits")
+}
+
+model TenderPreBidMeeting {
+  id           String    @id @default(uuid()) @db.Uuid
+  companyId    String    @db.Uuid
+  tenderId     String    @db.Uuid
+  meetingDate  DateTime  @db.Timestamptz(3)
+  location     String?   @db.VarChar(500)
+  participants String?   @db.Text
+  agenda       String?   @db.Text
+  discussion   String?   @db.Text
+  decisions    String?   @db.Text
+  questions    String?   @db.Text
+  actions      String?   @db.Text
+  notes        String?   @db.Text
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+  deletedAt    DateTime? @db.Timestamptz(3)
+  tender       Tender    @relation(fields: [tenderId, companyId], references: [id, companyId], onDelete: Restrict)
+
+  @@index([companyId, tenderId, meetingDate])
+  @@map("tender_pre_bid_meetings")
 }
 
 model CompanySettings {
@@ -707,33 +1155,34 @@ model CompanyMembership {
   updatedBy      String?          @db.Uuid
   deletedAt      DateTime?        @db.Timestamptz(3)
 
-  company                Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  user                   User                @relation(fields: [userId], references: [id], onDelete: Restrict)
-  designation            Designation?        @relation(fields: [designationId, companyId], references: [id, companyId], onDelete: Restrict)
-  department             Department?         @relation(fields: [departmentId, companyId], references: [id, companyId], onDelete: Restrict)
-  branch                 Branch?             @relation(fields: [branchId, companyId], references: [id, companyId], onDelete: Restrict)
-  team                   Team?               @relation(fields: [teamId, companyId], references: [id, companyId], onDelete: Restrict)
-  roles                  MembershipRole[]
-  managedBranches        Branch[]            @relation("BranchManager")
-  headedDepartments      Department[]        @relation("DepartmentHead")
-  managedBusinessUnits   BusinessUnit[]      @relation("BusinessUnitManager")
-  managedRegions         Region[]            @relation("RegionManager")
-  managedCostCenters     CostCenter[]        @relation("CostCenterManager")
-  ledTeams               Team[]              @relation("TeamLead")
-  reportsTo              ReportingLine[]     @relation("ReportingSubordinate")
-  directReports          ReportingLine[]     @relation("ReportingManager")
-  managedProjects        Project[]           @relation("ProjectManager")
-  siteEngineeredProjects Project[]           @relation("ProjectSiteEngineer")
-  projectTeamMemberships ProjectTeamMember[]
-  assignedProjectTasks   ProjectTask[]       @relation("ProjectTaskAssignee")
-  supervisedProjectTasks ProjectTask[]       @relation("ProjectTaskSupervisor")
-  employee               Employee?
-  assignedLeads          Lead[]               @relation("LeadAssignee")
-  assignedCrmCompanies   CrmCompany[]          @relation("CrmCompanyAssignee")
-  assignedCrmContacts    CrmContact[]          @relation("CrmContactAssignee")
-  assignedOpportunities  Opportunity[]          @relation("OpportunityAssignee")
+  company                 Company                   @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  user                    User                      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  designation             Designation?              @relation(fields: [designationId, companyId], references: [id, companyId], onDelete: Restrict)
+  department              Department?               @relation(fields: [departmentId, companyId], references: [id, companyId], onDelete: Restrict)
+  branch                  Branch?                   @relation(fields: [branchId, companyId], references: [id, companyId], onDelete: Restrict)
+  team                    Team?                     @relation(fields: [teamId, companyId], references: [id, companyId], onDelete: Restrict)
+  roles                   MembershipRole[]
+  managedBranches         Branch[]                  @relation("BranchManager")
+  headedDepartments       Department[]              @relation("DepartmentHead")
+  managedBusinessUnits    BusinessUnit[]            @relation("BusinessUnitManager")
+  managedRegions          Region[]                  @relation("RegionManager")
+  managedCostCenters      CostCenter[]              @relation("CostCenterManager")
+  ledTeams                Team[]                    @relation("TeamLead")
+  reportsTo               ReportingLine[]           @relation("ReportingSubordinate")
+  directReports           ReportingLine[]           @relation("ReportingManager")
+  managedProjects         Project[]                 @relation("ProjectManager")
+  siteEngineeredProjects  Project[]                 @relation("ProjectSiteEngineer")
+  projectTeamMemberships  ProjectTeamMember[]
+  assignedProjectTasks    ProjectTask[]             @relation("ProjectTaskAssignee")
+  supervisedProjectTasks  ProjectTask[]             @relation("ProjectTaskSupervisor")
+  employee                Employee?
+  assignedLeads           Lead[]                    @relation("LeadAssignee")
+  assignedCrmCompanies    CrmCompany[]              @relation("CrmCompanyAssignee")
+  assignedCrmContacts     CrmContact[]              @relation("CrmContactAssignee")
+  assignedOpportunities   Opportunity[]             @relation("OpportunityAssignee")
   opportunityStageChanges OpportunityStageHistory[] @relation("OpportunityStageChanger")
-  assignedCrmActivities  CrmActivity[]          @relation("CrmActivityAssignee")
+  assignedCrmActivities   CrmActivity[]             @relation("CrmActivityAssignee")
+  managedTenders          Tender[]                  @relation("TenderManager")
 
   @@unique([companyId, userId])
   @@unique([id, companyId])
@@ -1028,6 +1477,7 @@ model Team {
   lead                CompanyMembership?       @relation("TeamLead", fields: [leadMembershipId, companyId], references: [id, companyId], onDelete: Restrict)
   memberships         CompanyMembership[]
   employeeMemberships EmployeeTeamMembership[]
+  tenders             Tender[]
 
   @@unique([id, companyId])
   @@index([companyId, code, deletedAt])
@@ -1117,6 +1567,7 @@ model FileObject {
   crmContactAttachments  CrmContactAttachment[]
   opportunityAttachments OpportunityAttachment[]
   crmActivityAttachments CrmActivityAttachment[]
+  tenderAttachments      TenderAttachment[]
 
   @@index([companyId, purpose, status, deletedAt])
   @@map("file_objects")
@@ -1199,50 +1650,50 @@ model LeadSourceDefinition {
 }
 
 model Lead {
-  id                  String       @id @default(uuid()) @db.Uuid
-  companyId           String       @db.Uuid
-  leadNumber          String       @db.VarChar(50)
-  name                String       @db.VarChar(255)
-  leadTypeId          String       @db.Uuid
-  leadSourceId        String       @db.Uuid
-  organizationName    String?      @db.VarChar(255)
-  contactPerson       String?      @db.VarChar(200)
-  phone               String?      @db.VarChar(32)
-  alternatePhone      String?      @db.VarChar(32)
-  email               String?      @db.VarChar(320)
-  website             String?      @db.VarChar(2048)
-  address             String?      @db.VarChar(500)
-  city                String?      @db.VarChar(120)
-  projectLocation     String?      @db.VarChar(500)
-  projectCity         String?      @db.VarChar(120)
-  projectArea         String?      @db.VarChar(160)
-  latitude            Decimal?     @db.Decimal(10, 7)
-  longitude           Decimal?     @db.Decimal(10, 7)
-  estimatedValue      Decimal?     @db.Decimal(18, 2)
-  currency            String       @db.Char(3)
-  expectedClosingDate DateTime?    @db.Date
-  assignedToId        String?      @db.Uuid
-  crmCompanyId        String?      @db.Uuid
-  crmContactId        String?      @db.Uuid
+  id                  String              @id @default(uuid()) @db.Uuid
+  companyId           String              @db.Uuid
+  leadNumber          String              @db.VarChar(50)
+  name                String              @db.VarChar(255)
+  leadTypeId          String              @db.Uuid
+  leadSourceId        String              @db.Uuid
+  organizationName    String?             @db.VarChar(255)
+  contactPerson       String?             @db.VarChar(200)
+  phone               String?             @db.VarChar(32)
+  alternatePhone      String?             @db.VarChar(32)
+  email               String?             @db.VarChar(320)
+  website             String?             @db.VarChar(2048)
+  address             String?             @db.VarChar(500)
+  city                String?             @db.VarChar(120)
+  projectLocation     String?             @db.VarChar(500)
+  projectCity         String?             @db.VarChar(120)
+  projectArea         String?             @db.VarChar(160)
+  latitude            Decimal?            @db.Decimal(10, 7)
+  longitude           Decimal?            @db.Decimal(10, 7)
+  estimatedValue      Decimal?            @db.Decimal(18, 2)
+  currency            String              @db.Char(3)
+  expectedClosingDate DateTime?           @db.Date
+  assignedToId        String?             @db.Uuid
+  crmCompanyId        String?             @db.Uuid
+  crmContactId        String?             @db.Uuid
   partyLinkStatus     LeadPartyLinkStatus @default(UNLINKED)
-  priority            LeadPriority @default(MEDIUM)
-  status              LeadStatus   @default(NEW)
-  description         String?      @db.Text
-  lastActivityAt      DateTime     @default(now()) @db.Timestamptz(3)
-  createdAt           DateTime     @default(now()) @db.Timestamptz(3)
-  updatedAt           DateTime     @updatedAt @db.Timestamptz(3)
-  createdBy           String?      @db.Uuid
-  updatedBy           String?      @db.Uuid
-  deletedAt           DateTime?    @db.Timestamptz(3)
+  priority            LeadPriority        @default(MEDIUM)
+  status              LeadStatus          @default(NEW)
+  description         String?             @db.Text
+  lastActivityAt      DateTime            @default(now()) @db.Timestamptz(3)
+  createdAt           DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime            @updatedAt @db.Timestamptz(3)
+  createdBy           String?             @db.Uuid
+  updatedBy           String?             @db.Uuid
+  deletedAt           DateTime?           @db.Timestamptz(3)
 
-  company     Company                  @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  leadType    LeadTypeDefinition       @relation(fields: [leadTypeId], references: [id], onDelete: Restrict)
-  leadSource  LeadSourceDefinition     @relation(fields: [leadSourceId], references: [id], onDelete: Restrict)
-  assignedTo  CompanyMembership?       @relation("LeadAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
+  company     Company              @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  leadType    LeadTypeDefinition   @relation(fields: [leadTypeId], references: [id], onDelete: Restrict)
+  leadSource  LeadSourceDefinition @relation(fields: [leadSourceId], references: [id], onDelete: Restrict)
+  assignedTo  CompanyMembership?   @relation("LeadAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
   notes       LeadNote[]
   attachments LeadAttachment[]
-  crmCompany  CrmCompany?              @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
-  crmContact  CrmContact?              @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
+  crmCompany  CrmCompany?          @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  crmContact  CrmContact?          @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
   opportunity Opportunity?
   activities  CrmActivity[]
 
@@ -1373,18 +1824,22 @@ model CrmCompany {
   updatedBy          String?        @db.Uuid
   deletedAt          DateTime?      @db.Timestamptz(3)
 
-  tenant          Company                     @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  assignedTo      CompanyMembership?          @relation("CrmCompanyAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
-  mergedInto      CrmCompany?                 @relation("CrmCompanyMerge", fields: [mergedIntoId, companyId], references: [id, companyId], onDelete: Restrict)
-  mergedRecords   CrmCompany[]                @relation("CrmCompanyMerge")
-  types           CrmCompanyTypeAssignment[]
-  contacts        CrmContact[]
-  primaryContacts CrmCompanyPrimaryContact[]
-  leads           Lead[]
-  notes           CrmCompanyNote[]
-  attachments     CrmCompanyAttachment[]
-  opportunities   Opportunity[]
-  activities      CrmActivity[]
+  tenant            Company                    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  assignedTo        CompanyMembership?         @relation("CrmCompanyAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
+  mergedInto        CrmCompany?                @relation("CrmCompanyMerge", fields: [mergedIntoId, companyId], references: [id, companyId], onDelete: Restrict)
+  mergedRecords     CrmCompany[]               @relation("CrmCompanyMerge")
+  types             CrmCompanyTypeAssignment[]
+  contacts          CrmContact[]
+  primaryContacts   CrmCompanyPrimaryContact[]
+  leads             Lead[]
+  notes             CrmCompanyNote[]
+  attachments       CrmCompanyAttachment[]
+  opportunities     Opportunity[]
+  activities        CrmActivity[]
+  clientTenders     Tender[]                   @relation("TenderClient")
+  consultantTenders Tender[]                   @relation("TenderConsultant")
+  architectTenders  Tender[]                   @relation("TenderArchitect")
+  competitorTenders Tender[]                   @relation("TenderCompetitor")
 
   @@unique([id, companyId])
   @@unique([companyId, registrationNumber])
@@ -1445,18 +1900,19 @@ model CrmContact {
   updatedBy      String?          @db.Uuid
   deletedAt      DateTime?        @db.Timestamptz(3)
 
-  tenant             Company                     @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  crmCompany         CrmCompany?                 @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
-  assignedTo         CompanyMembership?          @relation("CrmContactAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
-  mergedInto         CrmContact?                 @relation("CrmContactMerge", fields: [mergedIntoId, companyId], references: [id, companyId], onDelete: Restrict)
-  mergedRecords      CrmContact[]                @relation("CrmContactMerge")
-  types              CrmContactTypeAssignment[]
-  primaryFor         CrmCompanyPrimaryContact[]
-  leads              Lead[]
-  notes              CrmContactNote[]
-  attachments        CrmContactAttachment[]
-  opportunities      Opportunity[]
-  activities         CrmActivity[]
+  tenant        Company                    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  crmCompany    CrmCompany?                @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  assignedTo    CompanyMembership?         @relation("CrmContactAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
+  mergedInto    CrmContact?                @relation("CrmContactMerge", fields: [mergedIntoId, companyId], references: [id, companyId], onDelete: Restrict)
+  mergedRecords CrmContact[]               @relation("CrmContactMerge")
+  types         CrmContactTypeAssignment[]
+  primaryFor    CrmCompanyPrimaryContact[]
+  leads         Lead[]
+  notes         CrmContactNote[]
+  attachments   CrmContactAttachment[]
+  opportunities Opportunity[]
+  activities    CrmActivity[]
+  tenders       Tender[]
 
   @@unique([id, companyId])
   @@index([companyId, status, deletedAt, createdAt])
@@ -1510,72 +1966,76 @@ model CrmCompanyPrimaryContact {
 }
 
 model CrmCompanyNote {
-  id           String    @id @default(uuid()) @db.Uuid
-  companyId    String    @db.Uuid
-  crmCompanyId String    @db.Uuid
-  note         String    @db.Text
-  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
-  createdBy    String?   @db.Uuid
-  updatedBy    String?   @db.Uuid
-  deletedAt    DateTime? @db.Timestamptz(3)
-  tenant Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  crmCompany CrmCompany @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  id           String     @id @default(uuid()) @db.Uuid
+  companyId    String     @db.Uuid
+  crmCompanyId String     @db.Uuid
+  note         String     @db.Text
+  createdAt    DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime   @updatedAt @db.Timestamptz(3)
+  createdBy    String?    @db.Uuid
+  updatedBy    String?    @db.Uuid
+  deletedAt    DateTime?  @db.Timestamptz(3)
+  tenant       Company    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  crmCompany   CrmCompany @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+
   @@index([companyId, crmCompanyId, deletedAt, createdAt])
   @@map("crm_company_notes")
 }
 
 model CrmContactNote {
-  id           String    @id @default(uuid()) @db.Uuid
-  companyId    String    @db.Uuid
-  crmContactId String    @db.Uuid
-  note         String    @db.Text
-  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
-  createdBy    String?   @db.Uuid
-  updatedBy    String?   @db.Uuid
-  deletedAt    DateTime? @db.Timestamptz(3)
-  tenant Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  crmContact CrmContact @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
+  id           String     @id @default(uuid()) @db.Uuid
+  companyId    String     @db.Uuid
+  crmContactId String     @db.Uuid
+  note         String     @db.Text
+  createdAt    DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime   @updatedAt @db.Timestamptz(3)
+  createdBy    String?    @db.Uuid
+  updatedBy    String?    @db.Uuid
+  deletedAt    DateTime?  @db.Timestamptz(3)
+  tenant       Company    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  crmContact   CrmContact @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
+
   @@index([companyId, crmContactId, deletedAt, createdAt])
   @@map("crm_contact_notes")
 }
 
 model CrmCompanyAttachment {
-  id           String    @id @default(uuid()) @db.Uuid
-  companyId    String    @db.Uuid
-  crmCompanyId String    @db.Uuid
-  fileId       String    @db.Uuid
-  title        String?   @db.VarChar(255)
-  description  String?   @db.VarChar(500)
-  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
-  createdBy    String?   @db.Uuid
-  updatedBy    String?   @db.Uuid
-  deletedAt    DateTime? @db.Timestamptz(3)
-  tenant Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  crmCompany CrmCompany @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
-  file FileObject @relation(fields: [fileId], references: [id], onDelete: Restrict)
+  id           String     @id @default(uuid()) @db.Uuid
+  companyId    String     @db.Uuid
+  crmCompanyId String     @db.Uuid
+  fileId       String     @db.Uuid
+  title        String?    @db.VarChar(255)
+  description  String?    @db.VarChar(500)
+  createdAt    DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime   @updatedAt @db.Timestamptz(3)
+  createdBy    String?    @db.Uuid
+  updatedBy    String?    @db.Uuid
+  deletedAt    DateTime?  @db.Timestamptz(3)
+  tenant       Company    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  crmCompany   CrmCompany @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  file         FileObject @relation(fields: [fileId], references: [id], onDelete: Restrict)
+
   @@unique([crmCompanyId, fileId])
   @@index([companyId, crmCompanyId, deletedAt, createdAt])
   @@map("crm_company_attachments")
 }
 
 model CrmContactAttachment {
-  id           String    @id @default(uuid()) @db.Uuid
-  companyId    String    @db.Uuid
-  crmContactId String    @db.Uuid
-  fileId       String    @db.Uuid
-  title        String?   @db.VarChar(255)
-  description  String?   @db.VarChar(500)
-  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
-  createdBy    String?   @db.Uuid
-  updatedBy    String?   @db.Uuid
-  deletedAt    DateTime? @db.Timestamptz(3)
-  tenant Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  crmContact CrmContact @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
-  file FileObject @relation(fields: [fileId], references: [id], onDelete: Restrict)
+  id           String     @id @default(uuid()) @db.Uuid
+  companyId    String     @db.Uuid
+  crmContactId String     @db.Uuid
+  fileId       String     @db.Uuid
+  title        String?    @db.VarChar(255)
+  description  String?    @db.VarChar(500)
+  createdAt    DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime   @updatedAt @db.Timestamptz(3)
+  createdBy    String?    @db.Uuid
+  updatedBy    String?    @db.Uuid
+  deletedAt    DateTime?  @db.Timestamptz(3)
+  tenant       Company    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  crmContact   CrmContact @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
+  file         FileObject @relation(fields: [fileId], references: [id], onDelete: Restrict)
+
   @@unique([crmContactId, fileId])
   @@index([companyId, crmContactId, deletedAt, createdAt])
   @@map("crm_contact_attachments")
@@ -3030,7 +3490,7 @@ model OpportunityStageDefinition {
   updatedBy   String?      @db.Uuid
   deletedAt   DateTime?    @db.Timestamptz(3)
 
-  company       Company?                @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  company       Company?                  @relation(fields: [companyId], references: [id], onDelete: Restrict)
   opportunities Opportunity[]
   stageHistory  OpportunityStageHistory[] @relation("ToStage")
   priorHistory  OpportunityStageHistory[] @relation("FromStage")
@@ -3110,57 +3570,58 @@ model OpportunityLostReasonDefinition {
 }
 
 model Opportunity {
-  id                     String             @id @default(uuid()) @db.Uuid
-  companyId              String             @db.Uuid
-  opportunityNumber      String             @db.VarChar(50)
-  name                   String             @db.VarChar(255)
-  leadId                 String?            @unique @db.Uuid
-  crmCompanyId           String?            @db.Uuid
-  crmContactId           String?            @db.Uuid
-  opportunityTypeId      String             @db.Uuid
-  sourceId               String             @db.Uuid
-  stageId                String             @db.Uuid
-  status                 OpportunityStatus  @default(OPEN)
-  projectLocation        String?            @db.VarChar(500)
-  city                   String?            @db.VarChar(120)
-  area                   String?            @db.VarChar(160)
-  estimatedContractValue Decimal?           @db.Decimal(18, 2)
-  currency               String             @db.Char(3)
-  probability            Int                @default(0)
+  id                     String              @id @default(uuid()) @db.Uuid
+  companyId              String              @db.Uuid
+  opportunityNumber      String              @db.VarChar(50)
+  name                   String              @db.VarChar(255)
+  leadId                 String?             @unique @db.Uuid
+  crmCompanyId           String?             @db.Uuid
+  crmContactId           String?             @db.Uuid
+  opportunityTypeId      String              @db.Uuid
+  sourceId               String              @db.Uuid
+  stageId                String              @db.Uuid
+  status                 OpportunityStatus   @default(OPEN)
+  projectLocation        String?             @db.VarChar(500)
+  city                   String?             @db.VarChar(120)
+  area                   String?             @db.VarChar(160)
+  estimatedContractValue Decimal?            @db.Decimal(18, 2)
+  currency               String              @db.Char(3)
+  probability            Int                 @default(0)
   priority               OpportunityPriority @default(MEDIUM)
-  expectedClosingDate    DateTime?          @db.Date
-  expectedStartDate      DateTime?          @db.Date
-  expectedCompletionDate DateTime?          @db.Date
-  assignedToId           String?            @db.Uuid
-  description            String?            @db.Text
-  wonDate                DateTime?          @db.Date
-  finalContractValue     Decimal?           @db.Decimal(18, 2)
-  winReason              String?            @db.VarChar(1000)
-  competitor             String?            @db.VarChar(255)
-  winRemarks             String?            @db.Text
-  lostDate               DateTime?          @db.Date
-  lostReasonId           String?            @db.Uuid
-  lostRemarks            String?            @db.Text
-  lastActivityAt         DateTime           @default(now()) @db.Timestamptz(3)
-  createdAt              DateTime           @default(now()) @db.Timestamptz(3)
-  updatedAt              DateTime           @updatedAt @db.Timestamptz(3)
-  createdBy              String?            @db.Uuid
-  updatedBy              String?            @db.Uuid
-  deletedAt              DateTime?          @db.Timestamptz(3)
+  expectedClosingDate    DateTime?           @db.Date
+  expectedStartDate      DateTime?           @db.Date
+  expectedCompletionDate DateTime?           @db.Date
+  assignedToId           String?             @db.Uuid
+  description            String?             @db.Text
+  wonDate                DateTime?           @db.Date
+  finalContractValue     Decimal?            @db.Decimal(18, 2)
+  winReason              String?             @db.VarChar(1000)
+  competitor             String?             @db.VarChar(255)
+  winRemarks             String?             @db.Text
+  lostDate               DateTime?           @db.Date
+  lostReasonId           String?             @db.Uuid
+  lostRemarks            String?             @db.Text
+  lastActivityAt         DateTime            @default(now()) @db.Timestamptz(3)
+  createdAt              DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime            @updatedAt @db.Timestamptz(3)
+  createdBy              String?             @db.Uuid
+  updatedBy              String?             @db.Uuid
+  deletedAt              DateTime?           @db.Timestamptz(3)
 
-  company          Company                       @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  lead             Lead?                         @relation(fields: [leadId], references: [id], onDelete: Restrict)
-  crmCompany       CrmCompany?                   @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
-  crmContact       CrmContact?                   @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
-  opportunityType  OpportunityTypeDefinition     @relation(fields: [opportunityTypeId], references: [id], onDelete: Restrict)
-  source           OpportunitySourceDefinition   @relation(fields: [sourceId], references: [id], onDelete: Restrict)
-  stage            OpportunityStageDefinition    @relation(fields: [stageId], references: [id], onDelete: Restrict)
-  lostReason       OpportunityLostReasonDefinition? @relation(fields: [lostReasonId], references: [id], onDelete: Restrict)
-  assignedTo       CompanyMembership?            @relation("OpportunityAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
-  stageHistory     OpportunityStageHistory[]
-  activities       CrmActivity[]
-  notes            OpportunityNote[]
-  attachments      OpportunityAttachment[]
+  company         Company                          @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  lead            Lead?                            @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  crmCompany      CrmCompany?                      @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  crmContact      CrmContact?                      @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
+  opportunityType OpportunityTypeDefinition        @relation(fields: [opportunityTypeId], references: [id], onDelete: Restrict)
+  source          OpportunitySourceDefinition      @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  stage           OpportunityStageDefinition       @relation(fields: [stageId], references: [id], onDelete: Restrict)
+  lostReason      OpportunityLostReasonDefinition? @relation(fields: [lostReasonId], references: [id], onDelete: Restrict)
+  assignedTo      CompanyMembership?               @relation("OpportunityAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
+  stageHistory    OpportunityStageHistory[]
+  activities      CrmActivity[]
+  notes           OpportunityNote[]
+  attachments     OpportunityAttachment[]
+  tenders         Tender[]
 
   @@unique([companyId, opportunityNumber])
   @@unique([id, companyId])
@@ -3193,11 +3654,11 @@ model OpportunityStageHistory {
   updatedBy     String?   @db.Uuid
   deletedAt     DateTime? @db.Timestamptz(3)
 
-  company     Company                       @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  opportunity Opportunity                   @relation(fields: [opportunityId, companyId], references: [id, companyId], onDelete: Restrict)
-  fromStage   OpportunityStageDefinition?   @relation("FromStage", fields: [fromStageId], references: [id], onDelete: Restrict)
-  toStage     OpportunityStageDefinition    @relation("ToStage", fields: [toStageId], references: [id], onDelete: Restrict)
-  changedBy   CompanyMembership?            @relation("OpportunityStageChanger", fields: [changedById, companyId], references: [id, companyId], onDelete: Restrict)
+  company     Company                     @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  opportunity Opportunity                 @relation(fields: [opportunityId, companyId], references: [id, companyId], onDelete: Restrict)
+  fromStage   OpportunityStageDefinition? @relation("FromStage", fields: [fromStageId], references: [id], onDelete: Restrict)
+  toStage     OpportunityStageDefinition  @relation("ToStage", fields: [toStageId], references: [id], onDelete: Restrict)
+  changedBy   CompanyMembership?          @relation("OpportunityStageChanger", fields: [changedById, companyId], references: [id, companyId], onDelete: Restrict)
 
   @@index([companyId, opportunityId, changedAt, deletedAt])
   @@map("opportunity_stage_history")
@@ -3240,47 +3701,47 @@ enum CrmActivityPriority {
 /// Lead, CrmCompany, CrmContact, and Opportunity. Do not add a per-entity
 /// activity model; extend this one instead.
 model CrmActivity {
-  id                String                 @id @default(uuid()) @db.Uuid
-  companyId         String                 @db.Uuid
-  relatedType       CrmActivityRelatedType
-  leadId            String?                @db.Uuid
-  crmCompanyId      String?                @db.Uuid
-  crmContactId      String?                @db.Uuid
-  opportunityId     String?                @db.Uuid
-  type              CrmActivityType
-  subject           String                 @db.VarChar(255)
-  description       String?                @db.Text
-  status            CrmActivityStatus      @default(PLANNED)
-  priority          CrmActivityPriority    @default(MEDIUM)
-  assignedToId      String                 @db.Uuid
-  startAt           DateTime?              @db.Timestamptz(3)
-  endAt             DateTime?              @db.Timestamptz(3)
-  dueDate           DateTime?              @db.Timestamptz(3)
-  completedAt       DateTime?              @db.Timestamptz(3)
-  location          String?                @db.VarChar(500)
-  participants      String?                @db.VarChar(1000)
-  contactPhone      String?                @db.VarChar(32)
-  callDurationMinutes Int?
-  emailTo           String?                @db.VarChar(500)
-  emailCc           String?                @db.VarChar(500)
-  purpose           String?                @db.Text
-  observations      String?                @db.Text
-  outcome           String?                @db.Text
-  nextAction        String?                @db.VarChar(1000)
-  nextFollowUpDate  DateTime?              @db.Timestamptz(3)
+  id                    String                 @id @default(uuid()) @db.Uuid
+  companyId             String                 @db.Uuid
+  relatedType           CrmActivityRelatedType
+  leadId                String?                @db.Uuid
+  crmCompanyId          String?                @db.Uuid
+  crmContactId          String?                @db.Uuid
+  opportunityId         String?                @db.Uuid
+  type                  CrmActivityType
+  subject               String                 @db.VarChar(255)
+  description           String?                @db.Text
+  status                CrmActivityStatus      @default(PLANNED)
+  priority              CrmActivityPriority    @default(MEDIUM)
+  assignedToId          String                 @db.Uuid
+  startAt               DateTime?              @db.Timestamptz(3)
+  endAt                 DateTime?              @db.Timestamptz(3)
+  dueDate               DateTime?              @db.Timestamptz(3)
+  completedAt           DateTime?              @db.Timestamptz(3)
+  location              String?                @db.VarChar(500)
+  participants          String?                @db.VarChar(1000)
+  contactPhone          String?                @db.VarChar(32)
+  callDurationMinutes   Int?
+  emailTo               String?                @db.VarChar(500)
+  emailCc               String?                @db.VarChar(500)
+  purpose               String?                @db.Text
+  observations          String?                @db.Text
+  outcome               String?                @db.Text
+  nextAction            String?                @db.VarChar(1000)
+  nextFollowUpDate      DateTime?              @db.Timestamptz(3)
   reminderMinutesBefore Int?
-  createdAt         DateTime               @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime               @updatedAt @db.Timestamptz(3)
-  createdBy         String?                @db.Uuid
-  updatedBy         String?                @db.Uuid
-  deletedAt         DateTime?              @db.Timestamptz(3)
+  createdAt             DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime               @updatedAt @db.Timestamptz(3)
+  createdBy             String?                @db.Uuid
+  updatedBy             String?                @db.Uuid
+  deletedAt             DateTime?              @db.Timestamptz(3)
 
-  company     Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  lead        Lead?              @relation(fields: [leadId, companyId], references: [id, companyId], onDelete: Restrict)
-  crmCompany  CrmCompany?        @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
-  crmContact  CrmContact?        @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
-  opportunity Opportunity?       @relation(fields: [opportunityId, companyId], references: [id, companyId], onDelete: Restrict)
-  assignedTo  CompanyMembership  @relation("CrmActivityAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
+  company     Company                 @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  lead        Lead?                   @relation(fields: [leadId, companyId], references: [id, companyId], onDelete: Restrict)
+  crmCompany  CrmCompany?             @relation(fields: [crmCompanyId, companyId], references: [id, companyId], onDelete: Restrict)
+  crmContact  CrmContact?             @relation(fields: [crmContactId, companyId], references: [id, companyId], onDelete: Restrict)
+  opportunity Opportunity?            @relation(fields: [opportunityId, companyId], references: [id, companyId], onDelete: Restrict)
+  assignedTo  CompanyMembership       @relation("CrmActivityAssignee", fields: [assignedToId, companyId], references: [id, companyId], onDelete: Restrict)
   attachments CrmActivityAttachment[]
 
   @@unique([id, companyId])
@@ -3297,17 +3758,17 @@ model CrmActivity {
 }
 
 model CrmActivityAttachment {
-  id         String    @id @default(uuid()) @db.Uuid
-  companyId  String    @db.Uuid
-  activityId String    @db.Uuid
-  fileId     String    @db.Uuid
-  title      String?   @db.VarChar(255)
-  description String?  @db.VarChar(500)
-  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt  DateTime  @updatedAt @db.Timestamptz(3)
-  createdBy  String?   @db.Uuid
-  updatedBy  String?   @db.Uuid
-  deletedAt  DateTime? @db.Timestamptz(3)
+  id          String    @id @default(uuid()) @db.Uuid
+  companyId   String    @db.Uuid
+  activityId  String    @db.Uuid
+  fileId      String    @db.Uuid
+  title       String?   @db.VarChar(255)
+  description String?   @db.VarChar(500)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
+  createdBy   String?   @db.Uuid
+  updatedBy   String?   @db.Uuid
+  deletedAt   DateTime? @db.Timestamptz(3)
 
   company  Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
   activity CrmActivity @relation(fields: [activityId, companyId], references: [id, companyId], onDelete: Restrict)

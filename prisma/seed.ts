@@ -116,6 +116,24 @@ const permissionDefinitions = [
   ['CRM.Activity.ViewTeam', 'CRM.Activity', 'ViewTeam'],
   ['CRM.Activity.Export', 'CRM.Activity', 'Export'],
   ['CRM.Activity.ViewCalendar', 'CRM.Activity', 'ViewCalendar'],
+  ['CRM.Dashboard.View', 'CRM.Dashboard', 'View'],
+  ['CRM.Dashboard.ViewOwn', 'CRM.Dashboard', 'ViewOwn'],
+  ['CRM.Dashboard.ViewTeam', 'CRM.Dashboard', 'ViewTeam'],
+  ['CRM.Dashboard.ViewAll', 'CRM.Dashboard', 'ViewAll'],
+  ['CRM.Dashboard.ViewForecast', 'CRM.Dashboard', 'ViewForecast'],
+  ['CRM.Dashboard.ViewPerformance', 'CRM.Dashboard', 'ViewPerformance'],
+  ['Tender.View', 'Tender', 'View'],
+  ['Tender.Create', 'Tender', 'Create'],
+  ['Tender.Edit', 'Tender', 'Edit'],
+  ['Tender.Delete', 'Tender', 'Delete'],
+  ['Tender.Assign', 'Tender', 'Assign'],
+  ['Tender.BidDecision', 'Tender', 'BidDecision'],
+  ['Tender.Submit', 'Tender', 'Submit'],
+  ['Tender.MarkAwarded', 'Tender', 'MarkAwarded'],
+  ['Tender.MarkLost', 'Tender', 'MarkLost'],
+  ['Tender.Documents', 'Tender', 'Documents'],
+  ['Tender.Requirements', 'Tender', 'Requirements'],
+  ['Tender.ViewValue', 'Tender', 'ViewValue'],
 ] as const;
 
 const rolePermissions: Record<string, string[]> = {
@@ -207,6 +225,13 @@ const rolePermissions: Record<string, string[]> = {
     'CRM.Activity.Cancel', 'CRM.Activity.Reschedule',
     'CRM.Activity.ViewTeam', 'CRM.Activity.Export',
     'CRM.Activity.ViewCalendar',
+    'CRM.Dashboard.View', 'CRM.Dashboard.ViewOwn', 'CRM.Dashboard.ViewTeam',
+    'CRM.Dashboard.ViewAll', 'CRM.Dashboard.ViewForecast',
+    'CRM.Dashboard.ViewPerformance',
+    'Tender.View', 'Tender.Create', 'Tender.Edit', 'Tender.Delete',
+    'Tender.Assign', 'Tender.BidDecision', 'Tender.Submit',
+    'Tender.MarkAwarded', 'Tender.MarkLost', 'Tender.Documents',
+    'Tender.Requirements', 'Tender.ViewValue',
   ],
   'Business Development Executive': [
     'Company.View', 'CRM.View', 'CRM.Lead.View', 'CRM.Lead.Create',
@@ -217,6 +242,7 @@ const rolePermissions: Record<string, string[]> = {
     'CRM.Activity.View', 'CRM.Activity.Create', 'CRM.Activity.Edit',
     'CRM.Activity.Complete', 'CRM.Activity.Cancel',
     'CRM.Activity.Reschedule', 'CRM.Activity.ViewCalendar',
+    'CRM.Dashboard.View', 'CRM.Dashboard.ViewOwn',
   ],
 };
 
