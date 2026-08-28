@@ -2,7 +2,7 @@
 
 Living status document. Update this file when a module’s implementation state changes. Record what is actually in the repository, not what was planned.
 
-Last audited: 2026-08-19
+Last audited: 2026-08-27
 
 ---
 
@@ -20,12 +20,12 @@ The product is a modular monolith: React web client, NestJS API, PostgreSQL via 
 
 ## Current Development Phase
 
-**Foundation complete; operational modules in active development; CRM Opportunity pipeline is the current incomplete slice.**
+**Foundation complete; operational modules in active development; CRM Dashboard, Analytics & Sales Performance (Module 2.1.5) is implemented on the existing CRM data model.**
 
 Evidence from the repository (not a guess):
 
 - Two git commits exist: initial foundation (company/organization, auth, projects) and a follow-up adding workforce, CRM, quality, and global error handling (2026-08-18).
-- Working tree (uncommitted at audit time) adds CRM Opportunity schema, migration, permission codes, and seed catalogs. There is no Opportunity controller, service, or UI.
+- CRM Opportunities, Activities, and Dashboard Analytics now have schema-backed APIs, RBAC, service tests, and responsive web routes in the working tree.
 - Many construction modules listed in product vision have no code.
 
 This is not a production-complete ERP. It is a working internal-platform foundation with several real modules behind auth, RBAC, and tenant isolation.
@@ -86,17 +86,17 @@ Only modules that have database, API, authorization, and working UI are listed h
 - **Important functionality:** External party masters (`CrmCompany`, `CrmContact`), types, assignment, notes, attachments, duplicate check, primary contacts, global CRM search, lead party linking
 - **Known limitations:** Merge permissions are seeded; merge execution is deferred. No CSV import/export. No company-to-company relationship graph.
 
+### CRM Opportunities, Activities & Analytics
+
+- **Status:** Implemented
+- **Important functionality:** Opportunity register, conversion from qualified leads, sales pipeline, exact Decimal weighted values, stage history, won/lost handling, CRM activities/follow-ups, calendar/team views, company-scoped sales forecast, and a consolidated CRM dashboard.
+- **Dashboard analytics:** Date ranges, per-currency pipeline and weighted pipeline, lead conversion, source/type/user performance, forecast, loss reasons, stage aging, configurable stale-opportunity health, monthly CRM movement, overdue follow-ups, and actionable links to existing lists.
+- **Security and scope:** Dashboard aggregates are calculated server-side, enforce the active company, clamp own/team/all scope to RBAC permissions, and keep money grouped by currency.
+- **Known limitations:** No generic export engine or PDF reports; dashboard location and client ranking are deferred until richer consistent source data and reporting requirements are available. Trend pipeline is labelled as newly created pipeline, not historical point-in-time pipeline.
+
 ---
 
 ## In Progress
-
-### CRM Opportunities / Pipeline
-
-- Prisma models exist: `Opportunity`, stage/type/source/lost-reason catalogs, stage history, activities, notes, attachments
-- Migration file exists: `prisma/migrations/20260819120000_crm_opportunities_pipeline/`
-- Permission codes and seed catalogs exist (Qualification → Won/Lost construction stages)
-- **Missing:** NestJS service/controller, web routes/pages, tests
-- Do not create a second opportunity model. Finish this slice on the existing schema.
 
 ### Quality web coverage
 
@@ -160,7 +160,6 @@ Do not invent additional bugs. If a new defect is found, add it here with the mo
 
 ### In Progress
 
-- CRM Opportunities (schema/seed/permissions; no API/UI)
 - Quality additional screens
 - Identity administration (empty Nest modules)
 
@@ -427,13 +426,13 @@ Reason: Project, CRM, and quality cost fields already use `Decimal(18,2)` so lat
 
 Do not implement this as part of a documentation task.
 
-**Recommended next development task: CRM Opportunities API and UI on the existing schema.**
+**Recommended next development task: Quality additional screens on the existing quality APIs.**
 
 Why this is next:
 
-1. Leads, CRM companies, and CRM contacts are already usable.
-2. Opportunity tables, catalogs, permission codes, and seed data already exist.
-3. There is no Opportunity controller or page, so the pipeline cannot be used.
+1. Quality backend capabilities are ahead of their first-class web coverage.
+2. CRM Module 2.1.5 is complete and should not be expanded into tender management automatically.
+3. This work can reuse existing quality entities and APIs without creating a second operational system.
 4. Construction CRM flow is Lead → Opportunity → (later) tender/estimate/project. Building a different module first would leave a half-finished CRM.
 
 Scope when that work starts:
